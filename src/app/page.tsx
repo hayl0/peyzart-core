@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
 import { 
   Search, MapPin, Sparkles, Sprout, 
   ShieldCheck, Star, ChevronRight, 
   ArrowRight, Heart, Droplets, Camera,
-  CheckCircle2, Play
+  CheckCircle2, Play, Globe
 } from 'lucide-react';
 import Link from 'next/link';
 import { gsap } from 'gsap';
@@ -18,260 +17,177 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+const Logo = () => (
+  <div className="flex items-center gap-3 group cursor-pointer">
+    <div className="relative w-14 h-14 flex items-center justify-center">
+      {/* Liquid Glass Base for Logo */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl rounded-2xl border-t border-white/60 shadow-2xl" />
+      <div className="absolute inset-1 bg-primary rounded-xl opacity-20 group-hover:opacity-40 transition-opacity" />
+      <Sprout className="w-8 h-8 text-primary relative z-10 drop-shadow-[0_0_8px_rgba(46,125,50,0.5)] group-hover:scale-110 group-hover:rotate-12 transition-all duration-500" />
+    </div>
+    <div className="flex flex-col">
+      <span className="text-2xl font-black text-primary-dark tracking-tighter uppercase leading-none italic">Peyzart</span>
+      <span className="text-[8px] font-black text-primary uppercase tracking-[0.4em] mt-1 opacity-60">Liquid Nature</span>
+    </div>
+  </div>
+);
+
 export default function LandingPage() {
   const mainRef = useRef<HTMLDivElement>(null);
-  const heroTextRef = useRef<HTMLDivElement>(null);
-  const featureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Hero Entrance
     const ctx = gsap.context(() => {
-      gsap.from(".nav-item", { y: -20, opacity: 0, stagger: 0.1, duration: 0.8, ease: "power3.out" });
-      
-      gsap.from(".hero-title span", {
-        y: 100,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 1.2,
-        ease: "power4.out"
-      });
-
-      gsap.from(".hero-desc", { opacity: 0, y: 30, duration: 1, delay: 0.5 });
-      gsap.from(".hero-cta", { scale: 0.8, opacity: 0, duration: 1, delay: 0.8, ease: "back.out(1.7)" });
-
-      // Scroll Reveal Animations
-      gsap.from(".feature-card", {
-        scrollTrigger: {
-          trigger: ".feature-grid",
-          start: "top 80%",
-        },
-        y: 60,
-        opacity: 0,
-        stagger: 0.2,
-        duration: 1,
-        ease: "power3.out"
-      });
-
-      gsap.from(".ai-section-content", {
-        scrollTrigger: {
-          trigger: ".ai-section",
-          start: "top 70%",
-        },
-        x: -100,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power3.out"
+      gsap.from(".hero-content > *", { 
+        y: 50, 
+        opacity: 0, 
+        stagger: 0.2, 
+        duration: 1.2, 
+        ease: "power4.out" 
       });
     }, mainRef);
-
     return () => ctx.revert();
   }, []);
 
   return (
-    <div ref={mainRef} className="flex flex-col min-h-screen bg-nature-mesh font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+    <div ref={mainRef} className="flex flex-col min-h-screen bg-[#f8fafc] font-sans selection:bg-primary/20">
       
-      {/* Premium Glass Nav */}
-      <nav className="flex items-center justify-between px-6 py-6 md:px-16 backdrop-blur-2xl sticky top-0 z-50 bg-white/40 border-b border-white/20">
-        <div className="flex items-center gap-3 group cursor-pointer nav-item">
-          <div className="bg-primary p-3 rounded-2xl shadow-2xl shadow-primary/20 group-hover:rotate-[15deg] transition-all duration-500 ring-4 ring-white">
-            <Sprout className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-2xl font-black text-primary-dark tracking-tighter uppercase italic">Peyzart</span>
-        </div>
-        
-        <div className="hidden lg:flex items-center gap-12 text-[11px] font-black uppercase tracking-[0.2em] text-primary-dark/50">
-          {['Hizmetler', 'Yapay Zeka', 'Nasıl Çalışır?', 'Peyzajcılar'].map((item) => (
-            <Link key={item} href={`#${item}`} className="nav-item hover:text-primary transition-all relative group py-2">
+      {/* Top Header Section */}
+      <header className="px-6 py-8 md:px-16 flex items-center justify-between">
+        <Logo />
+        <div className="hidden lg:flex items-center gap-12 bg-white/40 backdrop-blur-xl px-10 py-4 rounded-full border border-white/60 shadow-xl text-[10px] font-black uppercase tracking-[0.2em] text-primary-dark/40">
+          {['Discover', 'AI Labs', 'Portfolio', 'Pricing'].map((item) => (
+            <Link key={item} href={`#${item}`} className="hover:text-primary transition-all relative group">
               {item}
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
             </Link>
           ))}
         </div>
-
-        <div className="flex items-center gap-8">
-          <Link href="/login" className="nav-item text-xs font-black uppercase tracking-widest text-primary-dark/70 hover:text-primary">Giriş</Link>
-          <Link href="/register" className="nav-item relative group bg-primary text-white px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-2xl shadow-primary/30 overflow-hidden ring-4 ring-white">
-            <span className="relative z-10">Hemen Başla</span>
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-          </Link>
+        <div className="flex items-center gap-4">
+           <button className="w-12 h-12 flex items-center justify-center bg-white/60 backdrop-blur-md rounded-2xl border border-white shadow-lg text-primary-dark/40 hover:text-primary transition-colors">
+              <Globe className="w-5 h-5" />
+           </button>
+           <Link href="/register" className="liquid-glass-button liquid-glass-black px-8 py-4 rounded-2xl text-[10px] font-black">
+              Sign In
+           </Link>
         </div>
-      </nav>
+      </header>
 
-      <main className="flex-1">
+      <main className="flex-1 px-6 md:px-16">
         
-        {/* Immersive Hero Section */}
-        <section className="relative px-6 pt-16 pb-32 md:px-16 md:pt-24 min-h-[90vh] flex items-center">
-          <div className="max-w-8xl mx-auto w-full flex flex-col lg:flex-row items-center gap-20">
-            
-            <div className="flex-1 space-y-12 z-10">
-              <div className="inline-flex items-center gap-3 bg-primary/10 px-6 py-2.5 rounded-full border border-primary/20 backdrop-blur-md">
-                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Landscaping Evolution 2026</span>
+        {/* Main Hero Hero Board */}
+        <section className="relative py-12 md:py-20 flex flex-col items-center text-center space-y-12">
+           <div className="hero-content space-y-8 max-w-4xl">
+              <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-md px-5 py-2 rounded-full border border-white shadow-lg">
+                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                 <span className="text-[10px] font-black text-primary-dark uppercase tracking-widest">v2.0 Liquid Glass Edition</span>
               </div>
               
-              <h1 className="hero-title text-7xl md:text-9xl font-black text-primary-dark leading-[0.85] tracking-tighter italic">
-                <span>BAHÇENİZ</span> <br/> 
-                <span className="text-gradient">YENİDEN</span> <br/>
-                <span>DOĞUYOR.</span>
+              <h1 className="text-7xl md:text-[120px] font-black text-primary-dark leading-[0.8] tracking-tighter italic">
+                CREATING <br/>
+                <span className="text-gradient drop-shadow-2xl">LIVING</span> <br/>
+                SPACES.
               </h1>
-              
-              <p className="hero-desc text-xl md:text-2xl text-primary-dark/40 max-w-xl font-bold leading-relaxed">
-                Modern mimari, doğanın ruhuyla buluşuyor. 3D analiz ve AI desteğiyle hayalinizdeki peyzaja saniyeler içinde kavuşun.
-              </p>
 
-              <div className="hero-cta flex flex-col sm:flex-row gap-6">
-                <div className="relative max-w-xl p-3 bg-white/80 backdrop-blur-3xl rounded-3xl shadow-[0_40px_80px_-15px_rgba(46,125,50,0.2)] border border-white flex flex-col md:flex-row gap-3">
-                  <div className="flex-1 flex items-center px-6 gap-4 py-4">
-                    <MapPin className="w-6 h-6 text-primary/60" />
-                    <input 
-                      type="text" 
-                      placeholder="Bahçe konumu..." 
-                      className="w-full bg-transparent border-0 focus:ring-0 text-primary-dark font-black placeholder:text-gray-300 text-lg"
-                    />
-                  </div>
-                  <button className="bg-primary text-white px-10 py-5 rounded-[1.5rem] font-black flex items-center justify-center gap-3 hover:bg-primary-dark transition-all active:scale-95 group">
-                    Keşfet
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                  </button>
-                </div>
+              <div className="flex justify-center gap-6 pt-8">
+                 <Link href="/kesfet" className="liquid-glass-button liquid-glass-red px-12 py-6 rounded-[2rem] text-sm font-black shadow-2xl">
+                    Start Project
+                 </Link>
+                 <button className="liquid-glass-button liquid-glass-black px-12 py-6 rounded-[2rem] text-sm font-black">
+                    Secondary
+                 </button>
               </div>
-            </div>
+           </div>
 
-            {/* Right Side: Interactive 3D Garden Canvas */}
-            <div className="flex-1 relative w-full h-[600px] lg:h-[800px]">
-              <div className="absolute inset-0 bg-primary/5 rounded-[5rem] -rotate-6 scale-90 blur-3xl animate-pulse" />
-              <div className="absolute inset-0 glass-card rounded-[5rem] overflow-hidden flex items-center justify-center">
-                <GardenScene />
+           {/* Search Box (As seen in the image) */}
+           <div className="w-full max-w-2xl group">
+              <div className="liquid-glass-input p-2 flex flex-col md:flex-row gap-2 relative group-hover:scale-[1.02] transition-transform duration-500 prismatic-border">
+                 <div className="flex-1 flex flex-col items-start px-8 py-4">
+                    <span className="text-[10px] font-black text-primary-dark/40 uppercase tracking-widest mb-1">Text</span>
+                    <div className="w-full flex items-center gap-4">
+                       <input 
+                          type="text" 
+                          placeholder="Search suggestions" 
+                          className="w-full bg-transparent border-0 focus:ring-0 text-primary-dark font-bold placeholder:text-primary-dark/20 text-lg"
+                       />
+                       <Search className="w-6 h-6 text-primary-dark/40" />
+                    </div>
+                 </div>
               </div>
-              
-              {/* Floating High-Tech UI Elements */}
-              <motion.div 
-                animate={{ y: [0, -20, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-12 -right-8 bg-white/90 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-primary/10 flex items-center gap-5 z-20"
-              >
-                <div className="bg-primary/10 p-4 rounded-2xl ring-2 ring-primary/5">
-                    <Sparkles className="w-8 h-8 text-primary" />
-                </div>
-                <div>
-                    <p className="text-[10px] text-primary/60 font-black uppercase tracking-widest">3D Real-time</p>
-                    <p className="text-lg font-black text-primary-dark italic">Simülasyon</p>
-                </div>
-              </motion.div>
-
-              <motion.div 
-                animate={{ y: [0, 20, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute -bottom-10 -left-8 bg-white/90 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-primary/10 flex items-center gap-5 z-20"
-              >
-                <div className="bg-accent/10 p-4 rounded-2xl ring-2 ring-accent/5">
-                    <CheckCircle2 className="w-8 h-8 text-accent" />
-                </div>
-                <div>
-                    <p className="text-[10px] text-accent/60 font-black uppercase tracking-widest">Verified</p>
-                    <p className="text-lg font-black text-primary-dark italic">Profesyoneller</p>
-                </div>
-              </motion.div>
-            </div>
-          </div>
+           </div>
         </section>
 
-        {/* Feature Grid: The Aesthetic Services */}
-        <section id="Hizmetler" className="py-32 px-6 md:px-16 bg-white/30 backdrop-blur-sm">
-          <div className="max-w-8xl mx-auto space-y-20">
-            <div className="text-center space-y-4">
-              <h2 className="text-[10px] font-black text-primary uppercase tracking-[0.5em]">Hizmet Yelpazemiz</h2>
-              <h3 className="text-5xl md:text-7xl font-black text-primary-dark tracking-tighter italic">Bahçeniz İçin Tam Kapsamlı Sanat</h3>
-            </div>
-
-            <div className="feature-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                { title: 'Çim Sanatı', desc: 'Sadece biçmiyoruz, halı gibi işliyoruz.', icon: Sprout, color: 'bg-green-500' },
-                { title: 'Akıllı Sulama', desc: 'Su tasarrufu ve maksimum verim.', icon: Droplets, color: 'bg-blue-500' },
-                { title: '3D Tasarım', desc: 'Uygulamadan önce bahçenizi görün.', icon: Play, color: 'bg-purple-500' },
-                { title: 'Bitki Bakımı', desc: 'Bilimsel yöntemlerle bitki sağlığı.', icon: Heart, color: 'bg-red-500' },
-              ].map((f, i) => (
-                <div key={i} className="feature-card glass-card p-10 rounded-[3rem] group hover:bg-primary transition-all duration-700 cursor-pointer">
-                  <div className={`w-16 h-16 rounded-2xl ${f.color} text-white flex items-center justify-center mb-8 shadow-xl group-hover:bg-white group-hover:text-primary transition-colors duration-500`}>
-                    <f.icon className="w-8 h-8" />
-                  </div>
-                  <h4 className="text-2xl font-black text-primary-dark group-hover:text-white transition-colors mb-4 italic uppercase">{f.title}</h4>
-                  <p className="text-primary-dark/40 group-hover:text-white/60 transition-colors font-bold text-sm leading-relaxed">{f.desc}</p>
-                  <div className="mt-8 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 duration-500">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">Hemen Başla <ArrowRight className="w-3 h-3" /></span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* 3D Visual Section */}
+        <section className="py-20 relative">
+           <div className="absolute inset-0 bg-primary/5 rounded-[5rem] blur-3xl opacity-50" />
+           <div className="relative h-[600px] md:h-[800px] w-full glass-card rounded-[4rem] overflow-hidden p-1 flex flex-col">
+              <div className="flex items-center justify-between p-8 border-b border-white/20">
+                 <div className="flex items-center gap-4">
+                    <div className="w-3 h-3 bg-red-400 rounded-full" />
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full" />
+                    <div className="w-3 h-3 bg-green-400 rounded-full" />
+                 </div>
+                 <div className="text-[10px] font-black text-primary-dark/40 uppercase tracking-widest">3D Real-time Render</div>
+              </div>
+              <div className="flex-1">
+                 <GardenScene />
+              </div>
+           </div>
         </section>
 
-        {/* AI Section: Visionary Analysis */}
-        <section id="Yapay Zeka" className="ai-section py-32 px-6 md:px-16 overflow-hidden">
-          <div className="max-w-8xl mx-auto flex flex-col lg:flex-row gap-24 items-center">
-            <div className="ai-section-content flex-1 space-y-10 text-center lg:text-left">
-              <div className="inline-flex items-center gap-3 bg-accent/10 px-6 py-2.5 rounded-full border border-accent/20 backdrop-blur-md">
-                <Camera className="w-4 h-4 text-accent" />
-                <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em]">AI Computer Vision</span>
+        {/* Aesthetic Tabs (As seen in the image) */}
+        <section className="py-20 grid grid-cols-1 md:grid-cols-2 gap-12">
+           <div className="liquid-glass-black p-12 rounded-[3rem] space-y-8 text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
+              <div className="flex items-center justify-between">
+                 <h3 className="text-3xl font-black italic uppercase tracking-tighter">Tabs</h3>
+                 <span className="text-xs font-bold opacity-40">Card</span>
               </div>
-              <h2 className="text-6xl md:text-8xl font-black text-primary-dark leading-none tracking-tighter italic">
-                BİR FOTOĞRAF <br/>
-                <span className="text-accent italic">BİN ÖNERİ.</span>
-              </h2>
-              <p className="text-xl text-primary-dark/40 font-bold max-w-xl">
-                Bahçenizin fotoğrafını çekin, yapay zekamız bitki türlerini, toprak kalitesini ve gerekli bakım listesini size özel çıkarsın.
-              </p>
-              <ul className="space-y-4 text-sm font-black text-primary-dark/60 uppercase tracking-widest">
-                <li className="flex items-center justify-center lg:justify-start gap-4"><CheckCircle2 className="text-accent" /> Bitki Hastalığı Teşhisi</li>
-                <li className="flex items-center justify-center lg:justify-start gap-4"><CheckCircle2 className="text-accent" /> Toprak Besin Analizi</li>
-                <li className="flex items-center justify-center lg:justify-start gap-4"><CheckCircle2 className="text-accent" /> Tasarım Optimizasyonu</li>
-              </ul>
-            </div>
-            <div className="flex-1 w-full">
-              <GardenAnalyzer />
-            </div>
-          </div>
+              <div className="space-y-6">
+                 <p className="text-sm font-bold opacity-60 italic">Find files...</p>
+                 <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                       <div className="w-3 h-3 bg-cyan-400 rounded-full shadow-[0_0_10px_#22d3ee]" />
+                       <span className="text-sm font-bold uppercase tracking-widest">Add collaborator</span>
+                    </div>
+                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 opacity-40">
+                       <div className="w-3 h-3 border-2 border-white rounded-full" />
+                       <span className="text-sm font-bold uppercase tracking-widest">Pro plan</span>
+                    </div>
+                 </div>
+              </div>
+           </div>
+
+           <div className="space-y-8 flex flex-col justify-center items-center">
+              <div className="flex gap-8">
+                 {[1, 2].map(i => (
+                    <div key={i} className="w-24 h-24 glass-card rounded-[2rem] flex items-center justify-center relative prismatic-border">
+                       <div className="w-12 h-12 rounded-full border-4 border-primary/20 flex items-center justify-center">
+                          <CheckCircle2 className="w-6 h-6 text-primary" />
+                       </div>
+                       {/* Rainbow Ring Simulation */}
+                       <div className="absolute inset-0 rounded-[2rem] border-2 border-transparent bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 opacity-20" />
+                    </div>
+                 ))}
+              </div>
+              <div className="w-32 h-16 glass-card rounded-full p-2 flex items-center transition-all relative overflow-hidden">
+                 <div className="w-12 h-12 bg-white rounded-full shadow-xl shadow-black/10 flex items-center justify-center translate-x-0">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full" />
+                 </div>
+                 <div className="absolute inset-0 bg-primary/10 -z-10" />
+              </div>
+           </div>
         </section>
 
       </main>
 
-      <footer className="py-24 px-16 border-t border-primary/5 bg-primary-dark text-white relative overflow-hidden">
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] -mb-64 -mr-64" />
-        <div className="max-w-8xl mx-auto relative z-10 space-y-20">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-12">
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-xl text-primary-dark">
-                  <Sprout className="w-6 h-6" />
-                </div>
-                <span className="text-3xl font-black tracking-tighter uppercase italic">Peyzart</span>
-              </div>
-              <p className="text-white/40 max-w-sm font-bold text-sm leading-relaxed">
-                Dünyayı daha yeşil, bahçeleri daha modern hale getiriyoruz. 2026 Peyzaj Devrimi.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-16 text-xs font-black uppercase tracking-[0.3em] text-white/60">
-              <div className="space-y-6">
-                <p className="text-white">Şirket</p>
-                <p className="hover:text-primary transition-colors cursor-pointer">Hakkımızda</p>
-                <p className="hover:text-primary transition-colors cursor-pointer">Kariyer</p>
-              </div>
-              <div className="space-y-6">
-                <p className="text-white">Yasal</p>
-                <p className="hover:text-primary transition-colors cursor-pointer">KVKK</p>
-                <p className="hover:text-primary transition-colors cursor-pointer">Sözleşme</p>
-              </div>
-              <div className="space-y-6 hidden md:block">
-                <p className="text-white">Sosyal</p>
-                <p className="hover:text-primary transition-colors cursor-pointer">Instagram</p>
-                <p className="hover:text-primary transition-colors cursor-pointer">Dribbble</p>
-              </div>
-            </div>
-          </div>
-          <div className="pt-12 border-t border-white/5 flex justify-between items-center text-[10px] font-black uppercase tracking-[0.5em] text-white/20">
-            <span>&copy; 2026 PEYZART INC. ALL RIGHTS RESERVED.</span>
-            <span className="hidden md:block italic">DESIGNED BY HACKER CEO & OBSIDIAN MEMORY</span>
-          </div>
+      <footer className="py-20 px-16 border-t border-white/20 bg-white/40 backdrop-blur-xl">
+        <div className="max-w-8xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+           <Logo />
+           <p className="text-[10px] font-black text-primary-dark/20 uppercase tracking-[0.5em]">Liquid Nature // Created by Hacker CEO</p>
+           <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-primary-dark/40">
+              <Link href="#" className="hover:text-primary">Instagram</Link>
+              <Link href="#" className="hover:text-primary">Dribbble</Link>
+           </div>
         </div>
       </footer>
     </div>
