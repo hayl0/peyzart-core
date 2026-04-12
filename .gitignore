@@ -11,3 +11,4 @@ build
 ios/
 android/
 capacitor.config.ts
+.vercel

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   Sprout, MapPin, Clock, Calendar, 
   CheckCircle2, Package, Truck, Star, 
-  MessageSquare, Phone, ChevronLeft
+  MessageSquare, Phone, ChevronLeft, ShoppingBag
 } from 'lucide-react';
 import Link from 'next/link';
 
