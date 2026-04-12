@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { OrbitControls } from 'three-stdlib';
+import { EffectComposer } from 'three-stdlib';
+import { RenderPass } from 'three-stdlib';
+import { UnrealBloomPass } from 'three-stdlib';
 import { gsap } from 'gsap';
 
 export const Sam3DViewer = () => {
@@ -11,59 +15,79 @@ export const Sam3DViewer = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    // --- Core Scene Setup ---
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ReinhardToneMapping;
     containerRef.current.appendChild(renderer.domElement);
 
-    // Dark Grid Floor
+    // --- Post-Processing (The Secret Sauce) ---
+    const renderScene = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(containerRef.current.clientWidth, containerRef.current.clientHeight),
+      1.5, 0.4, 0.85
+    );
+    bloomPass.threshold = 0.2;
+    bloomPass.strength = 1.2;
+    bloomPass.radius = 0.5;
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+
+    // --- Controls ---
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
+
+    // --- Neural Grid & Objects ---
     const grid = new THREE.GridHelper(20, 40, '#00FF41', '#111111');
     grid.position.y = -2;
-    grid.material.opacity = 0.2;
+    grid.material.opacity = 0.1;
     grid.material.transparent = true;
     scene.add(grid);
 
-    // SAM-3D Object (Abstract Architectural Garden Element)
     const objectGroup = new THREE.Group();
-    
-    // Create multiple parts to simulate segmentation
     const geometries = [
-      new THREE.TorusKnotGeometry(1, 0.3, 128, 16),
-      new THREE.SphereGeometry(0.5, 32, 32),
-      new THREE.CylinderGeometry(0.2, 0.2, 3, 32)
+      new THREE.TorusKnotGeometry(1, 0.3, 200, 32),
+      new THREE.OctahedronGeometry(0.8, 0),
+      new THREE.IcosahedronGeometry(0.6, 2)
     ];
 
     const meshes: THREE.Mesh[] = [];
     geometries.forEach((geo, i) => {
       const mat = new THREE.MeshStandardMaterial({ 
-        color: '#111111', 
-        roughness: 0.1, 
-        metalness: 0.8,
+        color: '#050505', 
+        roughness: 0, 
+        metalness: 1,
         emissive: '#00FF41',
         emissiveIntensity: 0
       });
       const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.x = (i - 1) * 1.5;
+      mesh.position.x = (i - 1) * 2;
+      mesh.rotation.x = Math.random() * Math.PI;
       objectGroup.add(mesh);
       meshes.push(mesh);
     });
-
     scene.add(objectGroup);
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight('#ffffff', 0.2);
+    // --- Lights ---
+    const ambientLight = new THREE.AmbientLight('#ffffff', 0.1);
     scene.add(ambientLight);
 
-    const spotLight = new THREE.SpotLight('#00FF41', 2);
-    spotLight.position.set(5, 10, 5);
-    scene.add(spotLight);
+    const pointLight = new THREE.PointLight('#00FF41', 10);
+    pointLight.position.set(2, 5, 5);
+    scene.add(pointLight);
 
-    camera.position.z = 5;
+    camera.position.set(0, 2, 6);
 
-    // Interaction Logic (Raycasting)
+    // --- Interaction ---
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -81,37 +105,39 @@ export const Sam3DViewer = () => {
         const selectedMesh = intersects[0].object as THREE.Mesh;
         const material = selectedMesh.material as THREE.MeshStandardMaterial;
 
-        // Visual Feedback (Segmentation Simulation)
+        // Visual Feedback
         gsap.to(material, {
-          emissiveIntensity: 2,
-          duration: 0.2,
+          emissiveIntensity: 5,
+          duration: 0.1,
           yoyo: true,
           repeat: 1,
           onComplete: () => {
-            gsap.to(material, { emissiveIntensity: 0.5, duration: 1 });
+            gsap.to(material, { emissiveIntensity: 0.2, duration: 2 });
           }
         });
 
-        // Add UI point
         setPoints(prev => [...prev, { x: event.clientX, y: event.clientY }]);
       }
     };
 
     containerRef.current.addEventListener('mousedown', handleClick);
 
-    // Animation Loop
+    // --- Render Loop ---
     const animate = () => {
       requestAnimationFrame(animate);
-      objectGroup.rotation.y += 0.005;
-      renderer.render(scene, camera);
+      controls.update();
+      composer.render();
     };
     animate();
 
     const handleResize = () => {
       if (!containerRef.current) return;
-      camera.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight;
+      const width = containerRef.current.clientWidth;
+      const height = containerRef.current.clientHeight;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+      renderer.setSize(width, height);
+      composer.setSize(width, height);
     };
     window.addEventListener('resize', handleResize);
 
@@ -126,23 +152,18 @@ export const Sam3DViewer = () => {
     <div ref={containerRef} className="w-full h-full relative cursor-crosshair">
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <div className="liquid-glass-dark px-6 py-3 border border-primary/20 flex items-center gap-3">
-           <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-           <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">SAM-3D Live Inference</span>
+           <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_#00FF41]" />
+           <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Three.js Engine x SAM-3D</span>
         </div>
       </div>
       
-      {/* Simulation Points */}
       {points.map((p, i) => (
-        <div 
-          key={i} 
-          className="sam-3d-point" 
-          style={{ left: p.x - 6, top: p.y - 6 }} 
-        />
+        <div key={i} className="sam-3d-point" style={{ left: p.x - 6, top: p.y - 6 }} />
       ))}
 
       <div className="absolute bottom-6 right-6 z-20 pointer-events-none text-right">
-         <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Click to Segment 3D Mesh</p>
-         <p className="text-xs font-bold text-primary italic">SAM-3D // Research Preview</p>
+         <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Neural Mesh Rendering</p>
+         <p className="text-[10px] font-black text-primary italic">ORBIT ACTIVE // SCROLL TO ZOOM</p>
       </div>
     </div>
   );
