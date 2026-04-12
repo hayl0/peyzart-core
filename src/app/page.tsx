@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Search, MapPin, Sparkles, Sprout, 
   ShieldCheck, Star, ChevronRight, 
