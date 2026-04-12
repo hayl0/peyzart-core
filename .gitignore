@@ -12,3 +12,4 @@ ios/
 android/
 capacitor.config.ts
 .vercel
+.env*.local
