@@ -1,26 +1,127 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@plugin "tailwindcss-animate";
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@custom-variant dark (&:is(.dark *));
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: #2E7D32;
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-light: #4CAF50;
+  --color-primary-dark: #1B5E20;
+
+  --color-secondary: #F1F8E9;
+  --color-secondary-foreground: #2E7D32;
+
+  --color-accent: #8BC34A;
+  --color-accent-foreground: #1B5E20;
+
+  --color-muted: #F5F5F5;
+  --color-muted-foreground: #757575;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root {
+  --background: 0 0% 100%;
+  --foreground: 120 10% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 120 10% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 120 10% 10%;
+  --primary: 135 46% 34%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 90 40% 95%;
+  --secondary-foreground: 135 46% 34%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 46%;
+  --accent: 80 50% 53%;
+  --accent-foreground: 135 46% 15%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 135 10% 90%;
+  --input: 135 10% 90%;
+  --ring: 135 46% 34%;
+  --radius: 1.5rem;
+}
+
+.dark {
+  --background: 120 10% 5%;
+  --foreground: 0 0% 98%;
+  --card: 120 10% 7%;
+  --card-foreground: 0 0% 98%;
+  --popover: 120 10% 7%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 135 46% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 120 10% 15%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 120 10% 15%;
+  --muted-foreground: 0 0% 65%;
+  --accent: 80 50% 53%;
+  --accent-foreground: 120 10% 5%;
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 120 10% 20%;
+  --input: 120 10% 20%;
+  --ring: 135 46% 45%;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+.bg-nature-mesh {
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(241, 248, 233, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(232, 245, 233, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(200, 230, 201, 0.3) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(249, 251, 231, 0.5) 0px, transparent 50%);
+}
+
+.glass-card {
+  @apply bg-white/40 backdrop-blur-3xl border border-white/50 shadow-2xl;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-light to-accent;
 }

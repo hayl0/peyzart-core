@@ -19,86 +19,97 @@ export const GardenScene = () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     containerRef.current.appendChild(renderer.domElement);
 
-    // Stylized Low-Poly Tree (Peyzart Identity)
+    // Fog for depth
+    scene.fog = new THREE.FogExp2('#F1F8E9', 0.05);
+
+    // Tree Group
     const treeGroup = new THREE.Group();
 
-    // Trunk (Gövde)
-    const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 1.5, 6);
-    const trunkMaterial = new THREE.MeshStandardMaterial({ color: '#5D4037', flatShading: true });
-    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+    // Trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.15, 0.25, 2, 8),
+      new THREE.MeshStandardMaterial({ color: '#3E2723', roughness: 0.8 })
+    );
     treeGroup.add(trunk);
 
-    // Leaves (Yaprak Katmanları)
-    const leafMaterial = new THREE.MeshStandardMaterial({ color: '#2E7D32', flatShading: true });
-    
-    const layer1 = new THREE.Mesh(new THREE.ConeGeometry(0.8, 1, 6), leafMaterial);
-    layer1.position.y = 0.8;
-    treeGroup.add(layer1);
+    // Leaves (Procedural Clusters)
+    const createLeafLayer = (y: number, size: number, color: string) => {
+      const layer = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(size, 1),
+        new THREE.MeshStandardMaterial({ color, flatShading: true })
+      );
+      layer.position.y = y;
+      return layer;
+    };
 
-    const layer2 = new THREE.Mesh(new THREE.ConeGeometry(0.6, 0.8, 6), leafMaterial);
-    layer2.position.y = 1.3;
-    treeGroup.add(layer2);
-
-    const layer3 = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.6, 6), leafMaterial);
-    layer3.position.y = 1.7;
-    treeGroup.add(layer3);
+    treeGroup.add(createLeafLayer(1, 0.8, '#2E7D32'));
+    treeGroup.add(createLeafLayer(1.6, 0.6, '#4CAF50'));
+    treeGroup.add(createLeafLayer(2.1, 0.4, '#8BC34A'));
 
     scene.add(treeGroup);
 
-    // Ground (Zemin)
-    const groundGeometry = new THREE.CylinderGeometry(1.5, 1.5, 0.1, 12);
-    const groundMaterial = new THREE.MeshStandardMaterial({ color: '#8BC34A', flatShading: true });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.position.y = -0.75;
-    scene.add(ground);
+    // Ambient Floating Particles (Pollen/Light)
+    const particlesCount = 100;
+    const positions = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount * 3; i++) {
+      positions[i] = (Math.random() - 0.5) * 10;
+    }
+    const particlesGeometry = new THREE.BufferGeometry();
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const particlesMaterial = new THREE.PointsMaterial({ color: '#8BC34A', size: 0.05, transparent: true, opacity: 0.6 });
+    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particles);
 
     // Lights
-    const ambientLight = new THREE.AmbientLight('#FFFFFF', 0.5);
+    const ambientLight = new THREE.AmbientLight('#FFFFFF', 0.8);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight('#FFFFFF', 1);
-    pointLight.position.set(5, 5, 5);
-    scene.add(pointLight);
+    const sunLight = new THREE.DirectionalLight('#FFF9C4', 1.5);
+    sunLight.position.set(5, 10, 5);
+    scene.add(sunLight);
 
-    camera.position.z = 5;
-    camera.position.y = 1;
+    camera.position.set(0, 1.5, 6);
 
-    // GSAP Intro Animation
-    gsap.from(treeGroup.scale, {
-      x: 0, y: 0, z: 0,
-      duration: 1.5,
-      ease: 'back.out(1.7)',
-      delay: 0.5
-    });
+    // GSAP Intro
+    gsap.from(treeGroup.scale, { x: 0, y: 0, z: 0, duration: 2, ease: "elastic.out(1, 0.5)", delay: 0.5 });
+    gsap.from(treeGroup.position, { y: -5, duration: 1.5, ease: "power4.out", delay: 0.2 });
 
-    gsap.to(treeGroup.rotation, {
-      y: Math.PI * 2,
-      duration: 20,
+    // Floating Animation
+    gsap.to(treeGroup.position, {
+      y: "+=0.3",
+      duration: 3,
       repeat: -1,
-      ease: 'none'
+      yoyo: true,
+      ease: "sine.inOut"
     });
 
-    // Interaction (Mouse Move)
-    const handleMouseMove = (event: MouseEvent) => {
-      const x = (event.clientX / window.innerWidth) - 0.5;
-      const y = (event.clientY / window.innerHeight) - 0.5;
+    // Interaction
+    const mouse = new THREE.Vector2();
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      
       gsap.to(treeGroup.rotation, {
-        x: y * 0.5,
-        z: -x * 0.5,
-        duration: 1
+        y: mouse.x * 0.5,
+        x: -mouse.y * 0.2,
+        duration: 1.5
       });
     };
-
     window.addEventListener('mousemove', handleMouseMove);
 
     // Render Loop
+    const clock = new THREE.Clock();
     const animate = () => {
+      const elapsedTime = clock.getElapsedTime();
       requestAnimationFrame(animate);
+      
+      particles.rotation.y = elapsedTime * 0.05;
+      particles.position.y = Math.sin(elapsedTime) * 0.1;
+      
       renderer.render(scene, camera);
     };
     animate();
 
-    // Handle Resize
     const handleResize = () => {
       if (!containerRef.current) return;
       camera.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight;
@@ -110,11 +121,9 @@ export const GardenScene = () => {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
-      if (containerRef.current) {
-        containerRef.current.removeChild(renderer.domElement);
-      }
+      if (containerRef.current) containerRef.current.removeChild(renderer.domElement);
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-full min-h-[400px]" />;
+  return <div ref={containerRef} className="w-full h-full" />;
 };
