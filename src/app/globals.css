@@ -10,65 +10,97 @@
   --radius-md: 2rem;
   --radius-sm: 1.5rem;
 
-  --color-primary: #00FF41; /* Matrix/Neon Green */
-  --color-primary-dark: #003B00;
-  --color-liquid-black: #050505;
-  --color-glass-dark: rgba(15, 15, 15, 0.7);
+  --color-primary: #2E7D32;
+  --color-liquid-red: #ff3b30;
+  --color-liquid-black: #1a1a1a;
 }
 
 :root {
-  --background: #050505;
-  --foreground: #ffffff;
-  --primary: #00FF41;
+  --background: #f0f2f5;
+  --foreground: #0f172a;
 }
 
 body {
-  background-color: #050505;
-  color: #ffffff;
-  overflow-x: hidden;
+  background-color: #f0f2f5;
+  color: #0f172a;
+  font-family: var(--font-sans);
 }
 
-/* --- DEEP DARK LIQUID GLASS --- */
+/* --- THE REAL LIQUID GLASS ENGINE (From Photo) --- */
 
-.liquid-glass-dark {
-  background: linear-gradient(180deg, rgba(40, 40, 40, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%);
-  backdrop-filter: blur(40px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.jelly-button-red {
+  background: linear-gradient(180deg, #ff5f57 0%, #ff241a 100%);
   box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    0 15px 35px rgba(255, 59, 48, 0.3),
+    inset 0 4px 10px rgba(255,255,255,0.5),
+    inset 0 -10px 20px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.2);
+  @apply rounded-full px-10 py-5 text-white font-black text-lg transition-all duration-300 active:scale-95 flex items-center justify-center;
+}
+
+.jelly-button-black {
+  background: linear-gradient(180deg, #333 0%, #000 100%);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.3),
+    inset 0 4px 10px rgba(255,255,255,0.2),
+    inset 0 -10px 20px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  @apply rounded-full px-10 py-5 text-white font-black text-lg transition-all duration-300 active:scale-95 flex items-center justify-center;
+}
+
+.liquid-search-container {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(30px);
+  border: 2px solid rgba(255, 255, 255, 0.6);
   border-radius: 2.5rem;
+  box-shadow: 
+    0 20px 40px rgba(0,0,0,0.05),
+    inset 0 2px 10px rgba(0,0,0,0.02);
+  @apply p-2 transition-all duration-500;
 }
 
-.neon-glow {
-  box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
-  border: 1px solid rgba(0, 255, 65, 0.3);
+.prismatic-border {
+  position: relative;
+  z-index: 1;
 }
 
-.sam-3d-point {
-  width: 12px;
-  height: 12px;
-  background: #00FF41;
-  border-radius: Math.PI;
-  box-shadow: 0 0 15px #00FF41;
+.prismatic-border::after {
+  content: '';
   position: absolute;
-  pointer-events: none;
-  z-index: 100;
+  inset: -2px;
+  background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+  z-index: -1;
+  filter: blur(8px);
+  opacity: 0.15;
+  border-radius: inherit;
+  background-size: 400%;
+  animation: prismatic 20s linear infinite;
 }
 
-.text-gradient-neon {
+@keyframes prismatic {
+  0% { background-position: 0 0; }
+  50% { background-position: 400% 0; }
+  100% { background-position: 0 0; }
+}
+
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+  @apply rounded-[3rem];
+}
+
+.text-gradient {
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  background-image: linear-gradient(to right, #00FF41, #bcff00, #48ff00);
-  filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.3));
+  background-image: linear-gradient(to right, #2E7D32, #4CAF50, #8BC34A);
 }
 
-/* Hide scrollbar but keep functionality */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.bg-nature-mesh {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(241, 248, 233, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(232, 245, 233, 0.5) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.8) 0px, transparent 100%);
 }
