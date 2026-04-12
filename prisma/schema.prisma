@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  LANDSCAPER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          UserRole  @default(CUSTOMER)
+  image         String?
+  phone         String?
+  address       String?
+  
+  // Geographic Location
+  lat           Float?
+  lng           Float?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  landscaperProfile LandscaperProfile?
+  orders            Order[]            @relation("CustomerOrders")
+  reviews           Review[]           @relation("CustomerReviews")
+  wallet            Wallet?
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  balance   Float    @default(0.0)
+  currency  String   @default("TRY")
+  
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions Transaction[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  amount      Float
+  type        String   // "DEPOSIT", "WITHDRAWAL", "PAYMENT", "REFUND"
+  status      String   // "SUCCESS", "FAILED", "PENDING"
+  description String?
+  
+  walletId    String
+  wallet      Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+}
+
+model LandscaperProfile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  companyName   String?
+  bio           String?
+  experience    Int       @default(0) // Years
+  rating        Float     @default(0.0)
+  reviewCount   Int       @default(0)
+  isVerified    Boolean   @default(false)
+  
+  // Portfolio
+  portfolio     PortfolioImage[]
+  
+  // Services & Pricing
+  services      LandscaperService[]
+  
+  // Availability
+  isOpen        Boolean   @default(true)
+  
+  orders        Order[]   @relation("LandscaperOrders")
+  reviews       Review[]  @relation("LandscaperReviews")
+}
+
+model PortfolioImage {
+  id                  String            @id @default(cuid())
+  url                 String
+  landscaperProfileId String
+  landscaperProfile   LandscaperProfile @relation(fields: [landscaperProfileId], references: [id], onDelete: Cascade)
+}
+
+model LandscaperService {
+  id                  String            @id @default(cuid())
+  name                String            // e.g., "Çim Biçme", "Budama"
+  description         String?
+  price               Float             // Base price
+  unit                String            @default("m2") // m2, hour, fixed
+  landscaperProfileId String
+  landscaperProfile   LandscaperProfile @relation(fields: [landscaperProfileId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  status            OrderStatus @default(PENDING)
+  totalPrice        Float
+  serviceName       String
+  serviceDate       DateTime
+  notes             String?
+  
+  // Location of service
+  address           String
+  lat               Float?
+  lng               Float?
+
+  // Relationships
+  customerId        String
+  customer          User        @relation("CustomerOrders", fields: [customerId], references: [id])
+  
+  landscaperId      String
+  landscaper        LandscaperProfile @relation("LandscaperOrders", fields: [landscaperId], references: [id])
+
+  payment           Payment?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model Review {
+  id                String      @id @default(cuid())
+  rating            Int         // 1 to 5
+  comment           String?
+  
+  customerId        String
+  customer          User        @relation("CustomerReviews", fields: [customerId], references: [id])
+  
+  landscaperId      String
+  landscaper        LandscaperProfile @relation("LandscaperReviews", fields: [landscaperId], references: [id])
+
+  createdAt         DateTime    @default(now())
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  orderId         String   @unique
+  order           Order    @relation(fields: [orderId], references: [id])
+  amount          Float
+  currency        String   @default("TRY")
+  status          String   // "SUCCESS", "FAILED", "PENDING"
+  provider        String   // "IYZICO", "STRIPE"
+  transactionId   String?
+  
+  createdAt       DateTime @default(now())
+}
