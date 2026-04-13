@@ -1,0 +1,15 @@
+services:
+  peyzart-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+      - HTTP_PROXY=http://192.168.49.1:8000
+      - HTTPS_PROXY=http://192.168.49.1:8000
+      - NO_PROXY=localhost,127.0.0.1
+    command: npm run dev -- -H 0.0.0.0
