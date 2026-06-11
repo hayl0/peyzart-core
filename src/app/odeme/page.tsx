@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import LiquidButton from '@/components/ui/LiquidButton';
 
 export default function CheckoutPage() {
   const [paymentMethod, setActiveMethod] = useState('card');
