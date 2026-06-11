@@ -8,7 +8,7 @@ export const iyzico = new Iyzipay({
 
 export const createIyzicoPayment = (data: any) => {
     return new Promise((resolve, reject) => {
-        iyzico.payment.create(data, (err, result) => {
+        iyzico.payment.create(data, (err: any, result: any) => {
             if (err) reject(err);
             else resolve(result);
         });

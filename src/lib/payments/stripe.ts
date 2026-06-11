@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-  apiVersion: '2025-02-24-preview', // Latest stable version
+  apiVersion: '2026-03-25.dahlia', // Latest stable version
   typescript: true,
 });
 

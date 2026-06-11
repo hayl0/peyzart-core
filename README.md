@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Peyzart - Bahçeler Gerçekleşiyor ✨
 
-## Getting Started
+Peyzart, peyzaj ve bahçe tasarımı süreçlerini profesyonelleştiren, AI destekli ve yüksek etkileşimli bir SaaS platformudur.
 
-First, run the development server:
+## 🚀 Öne Çıkan Özellikler
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **AI-Driven Design Insights**: Bahçeniz için akıllı analizler ve öneriler.
+- **Ultra-Modern UI**: GSAP, Three.js ve Framer Motion ile güçlendirilmiş, akıcı kullanıcı deneyimi.
+- **Cross-Platform**: Capacitor ile iOS ve Android desteği.
+- **Enterprise Grade Security**: NextAuth ve güvenli API katmanları.
+- **Scalable Infrastructure**: Next.js 16, Prisma ve Docker desteği.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Teknoloji Yığını
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Animation**: [GSAP](https://greensock.com/), [Framer Motion](https://www.framer.com/motion/)
+- **3D**: [Three.js](https://threejs.org/) + [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Database**: [Prisma](https://www.prisma.io/) + PostgreSQL
+- **Auth**: [Next-Auth](https://next-auth.js.org/)
+- **Mobile**: [Capacitor](https://capacitorjs.com/)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📦 Kurulum
 
-## Learn More
+1. Bağımlılıkları yükleyin:
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. `.env` dosyasını oluşturun:
+   ```bash
+   cp .env.example .env
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Veritabanını hazırlayın:
+   ```bash
+   npm run db:push
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Geliştirme sunucusunu başlatın:
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+## 🧪 Scriptler
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `npm run dev`: Geliştirme modu.
+- `npm run build`: Production build.
+- `npm run lint`: Kod kalitesi kontrolü.
+- `npm run format`: Otomatik kod formatlama.
+- `npm run typecheck`: TypeScript tip kontrolü.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 Lisans
+
+Peyzart © 2026. Tüm Hakları Saklıdır.

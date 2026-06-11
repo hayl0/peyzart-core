@@ -10,26 +10,26 @@ const ALERTS = [
 
 export const AlertsCard = () => {
   return (
-    <div className="greenish-glass-yellow p-8 flex flex-col gap-6 h-full min-h-[400px]">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-black text-greenish-dark italic">Critical Alerts</h3>
-        <span className="text-xs font-bold text-greenish-dark/40 uppercase tracking-widest cursor-pointer hover:text-greenish-dark transition-colors underline">See All</span>
+    <div className="bg-greenish-yellow p-8 flex flex-col gap-8 h-full min-h-[400px] rounded-[2.5rem] shadow-liquid">
+      <div className="flex justify-between items-center px-2">
+        <h3 className="text-xl font-bold text-greenish-darkest tracking-tight">Critical Alerts</h3>
+        <span className="text-xs font-bold text-greenish-darkest/40 uppercase tracking-widest cursor-pointer hover:text-greenish-darkest transition-colors">See All</span>
       </div>
 
-      <div className="flex flex-col gap-4 mt-2">
+      <div className="flex flex-col gap-4 mt-2 px-2">
         {ALERTS.map((alert) => (
-          <div key={alert.id} className="flex items-center gap-4 bg-white/30 backdrop-blur-md p-4 rounded-[2rem] border border-white/20">
-            <div className="bg-white p-3 rounded-full text-greenish-dark">
+          <div key={alert.id} className="flex items-center gap-4 py-4 border-b border-greenish-darkest/5 last:border-0">
+            <div className="bg-white/20 p-3 rounded-full text-greenish-darkest">
               {alert.icon}
             </div>
             <div className="flex-1">
-              <p className="text-xs font-bold text-greenish-dark/40 uppercase tracking-widest">{alert.title}</p>
-              <p className="text-sm font-black text-greenish-dark italic">{alert.subtitle}</p>
+              <p className="text-[10px] font-bold text-greenish-darkest/40 uppercase tracking-widest leading-none mb-1">{alert.title}</p>
+              <p className="text-sm font-bold text-greenish-darkest">{alert.subtitle}</p>
             </div>
             {alert.status === 'ok' ? (
-              <CheckCircle2 className="w-6 h-6 text-greenish-dark" />
+              <CheckCircle2 className="w-5 h-5 text-greenish-darkest" />
             ) : (
-              <XCircle className="w-6 h-6 text-greenish-dark" />
+              <XCircle className="w-5 h-5 text-greenish-darkest" />
             )}
           </div>
         ))}

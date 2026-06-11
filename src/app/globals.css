@@ -1,25 +1,181 @@
 @import "tailwindcss";
 
+@plugin "tailwindcss-animate";
+
+/* 
+ * Peyzart Design Tokens - Premium Edition
+ * Meticulously crafted for high-end SaaS experience.
+ */
+
 @theme {
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Sora', var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --radius-xxl: 3.5rem;
+  --radius-xl: 2.5rem;
+  --radius-lg: 1.5rem;
+  
+  --color-brand-green: #4caf50;
+  --color-brand-lime: #cddc39;
+  --color-brand-dark: #0a0e14;
 }
 
-@layer base {
-  body {
-    @apply bg-white text-black font-sans antialiased;
-  }
-  h1, h2, h3 {
-    @apply font-black tracking-tighter uppercase;
-  }
-  button {
-    @apply font-bold uppercase tracking-widest transition-all;
+:root {
+  --background: #0a0e14;
+  --foreground: #f8fafc;
+  
+  /* Precision Shadows */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+  --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 20px 50px -12px rgba(0,0,0,0.25);
+  
+  /* Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+@utility glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 
+    0 10px 40px -10px rgba(0,0,0,0.3),
+    inset 0 1px 1px rgba(255,255,255,0.05);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@utility bento-card {
+  @apply glass-panel p-8 rounded-[2.5rem];
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  line-height: 1.6;
+  
+  /* Safe Area Support for Mobile */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Mobile-Specific UX Enhancements */
+@media (max-width: 768px) {
+  .btn-liquid {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    min-height: 3.5rem; /* Larger touch target */
   }
 }
 
-.gsd-card {
-  @apply border-2 border-black p-8 hover:bg-black hover:text-white transition-all duration-300;
+/* 
+ * 1. GRAIN TEXTURE OVERLAY
+ * Adds a professional, cinematic texture to the entire app.
+ */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 9999;
 }
 
-.gsd-input {
-  @apply border-2 border-black px-6 py-4 outline-none focus:ring-4 focus:ring-black/20;
+/* 
+ * 3. LIQUID INTERACTIVE BUTTONS
+ */
+.btn-liquid {
+  position: relative;
+  display: inline-flex;
+  items-center: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: all 0.5s;
+  border-radius: 1.25rem;
+  padding: 1.25rem 2.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.btn-liquid-primary {
+  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  box-shadow: 
+    0 10px 25px -5px rgba(76, 175, 80, 0.3),
+    0 8px 10px -6px rgba(76, 175, 80, 0.2),
+    inset 0 1px 1px rgba(255,255,255,0.2);
+  color: white;
+}
+
+.btn-liquid-primary:hover {
+  box-shadow: 
+    0 15px 35px -5px rgba(76, 175, 80, 0.5),
+    inset 0 1px 1px rgba(255,255,255,0.3);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* 
+ * 4. TYPOGRAPHY SCALING
+ */
+h1 {
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* 
+ * 5. MASKED GRADIENT TEXT
+ */
+.text-gradient {
+  background: linear-gradient(to right, #ffffff, #888888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 
+ * 6. CUSTOM SCROLLBAR
+ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* --- ANIMATION PRIMITIVES --- */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
