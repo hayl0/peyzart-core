@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ChevronRight, Calendar, MapPin, Clock, CreditCard } from 'lucide-react';
-import { LiquidButtonRed, LiquidButtonBlack } from '@/components/greenish/LiquidUI';
+import { LiquidButtonRed, LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
 
 export default function BookingPage() {
   const [step, setStep] = useState(1);

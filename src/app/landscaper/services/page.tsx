@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { LiquidButtonRed, LiquidButtonBlack } from '@/components/greenish/LiquidUI';
+import { LiquidButtonRed, LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
 
 const mockServices = [
   {

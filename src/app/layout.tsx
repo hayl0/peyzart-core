@@ -5,7 +5,7 @@
 
 import type { Metadata, Viewport } from 'next';
 import { Sora, JetBrains_Mono } from 'next/font/google';
-import './globals.css';
+import '../styles/globals.css';
 import SmoothScroll from '@/components/layout/SmoothScroll';
 import CustomCursor from '@/components/layout/CustomCursor';
 

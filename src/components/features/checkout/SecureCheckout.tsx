@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { hapticImpactLight, hapticSuccess, hapticError } from '@/lib/haptics';
-import { LiquidButtonBlack } from '@/components/greenish/LiquidUI';
+import { LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
 
 interface CheckoutProps {
   amount: number;

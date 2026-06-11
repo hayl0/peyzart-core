@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { LiquidButtonBlack } from '@/components/greenish/LiquidUI';
+import { LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
 
 const mockOrders = [
   {

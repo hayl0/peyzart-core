@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { LiquidButtonRed, LiquidButtonBlack } from '@/components/greenish/LiquidUI';
+import { LiquidButtonRed, LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
 
 interface LiquidButtonProps {
   label: string;
