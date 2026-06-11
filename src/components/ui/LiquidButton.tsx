@@ -1,26 +1,44 @@
-import classNames from 'classnames';
+/**
+ * Modern Liquid Button Wrapper
+ * Redirects to the central LiquidUI system for consistency.
+ */
+
 import React from 'react';
+import { LiquidButtonRed, LiquidButtonBlack } from '@/components/greenish/LiquidUI';
 
 interface LiquidButtonProps {
   label: string;
-  onClick: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   variant?: 'primary' | 'secondary';
+  className?: string;
+  isLoading?: boolean;
 }
 
-const LiquidButton: React.FC<LiquidButtonProps> = ({ label, onClick, variant = 'primary' }) => {
-  const buttonClass = classNames(
-    'relative inline-flex items-center justify-center px-6 py-3 font-medium text-white transition-all duration-300 rounded-full shadow-lg',
-    {
-      'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-pink-500 hover:to-orange-500':
-        variant === 'primary',
-      'bg-gray-800 hover:bg-gray-700': variant === 'secondary',
-    }
-  );
+const LiquidButton: React.FC<LiquidButtonProps> = ({ 
+  label, 
+  onClick, 
+  variant = 'primary',
+  className,
+  isLoading
+}) => {
+  if (variant === 'primary') {
+    return (
+      <LiquidButtonRed 
+        label={label} 
+        onClick={onClick} 
+        className={className} 
+        isLoading={isLoading} 
+      />
+    );
+  }
 
   return (
-    <button className={buttonClass} onClick={onClick}>
-      {label}
-    </button>
+    <LiquidButtonBlack 
+      label={label} 
+      onClick={onClick} 
+      className={className} 
+      isLoading={isLoading} 
+    />
   );
 };
 

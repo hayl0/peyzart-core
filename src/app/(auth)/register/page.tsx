@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import LiquidButton from '@/components/ui/LiquidButton';
 
 export default function RegisterPage() {
   const [userType, setUserType] = useState<'customer' | 'landscaper'>('customer');
