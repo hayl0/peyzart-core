@@ -14,6 +14,7 @@ export interface BaseProps {
 }
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, BaseProps {
+  label?: string;
   variant?: 'solid' | 'outline' | 'ghost' | 'liquid';
   color?: ColorVariant | 'greenish' | 'black' | 'red';
   size?: SizeVariant;
