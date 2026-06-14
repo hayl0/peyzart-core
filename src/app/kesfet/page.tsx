@@ -3,6 +3,7 @@
 import { useJsApiLoader } from '@react-google-maps/api';
 import { gsap } from 'gsap';
 import { useEffect, useState } from 'react';
+import SearchBar from '@/components/ui/SearchBar';
 
 // Mock Data (Real data will come from Firestore/Prisma)
 const MOCK_LANDSCAPERS = [
@@ -79,7 +80,7 @@ export default function DiscoverPage() {
         </p>
         <SearchBar
           placeholder="Search for landscapers or services..."
-          onSearch={(query) => alert(`Searching for ${query}`)}
+          onSearch={(query: string) => alert(`Searching for ${query}`)}
         />
       </section>
 

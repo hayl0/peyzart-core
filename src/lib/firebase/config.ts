@@ -12,10 +12,19 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase (Client-side)
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+function getFirebaseApp() {
+  if (typeof window === 'undefined') return null;
+  if (typeof firebaseConfig.apiKey !== 'string' || !firebaseConfig.apiKey.startsWith('AIza')) return null;
+  try {
+    return getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  } catch {
+    return null;
+  }
+}
+
+const app = getFirebaseApp();
+const auth = app ? getAuth(app) : null;
+const db = app ? getFirestore(app) : null;
+const storage = app ? getStorage(app) : null;
 
 export { auth, db, storage };

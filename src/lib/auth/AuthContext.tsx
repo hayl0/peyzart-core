@@ -9,21 +9,27 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { auth as firebaseAuth } from '@/lib/firebase/config';
+
+const auth = firebaseAuth;
 
 interface AuthContextType {
   user: User | null;
   userRole: 'customer' | 'landscaper' | 'admin' | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, role?: 'customer' | 'landscaper') => Promise<void>;
   signUp: (email: string, password: string, name: string, role: 'customer' | 'landscaper') => Promise<void>;
   signInWithGoogle: (role: 'customer' | 'landscaper') => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const noop = async () => {};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -31,6 +37,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
@@ -46,11 +56,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, role: 'customer' | 'landscaper' = 'customer') => {
+    if (!auth) throw new Error('Firebase not initialized');
     await signInWithEmailAndPassword(auth, email, password);
+    localStorage.setItem('peyzart_user_role', role);
+    setUserRole(role);
   };
 
   const signUp = async (email: string, password: string, name: string, role: 'customer' | 'landscaper') => {
+    if (!auth) throw new Error('Firebase not initialized');
     const result = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(result.user, { displayName: name });
     localStorage.setItem('peyzart_user_role', role);
@@ -58,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithGoogle = async (role: 'customer' | 'landscaper') => {
+    if (!auth) throw new Error('Firebase not initialized');
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     localStorage.setItem('peyzart_user_role', role);
@@ -65,12 +80,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    if (!auth) return;
     await signOut(auth);
     localStorage.removeItem('peyzart_user_role');
   };
 
+  const resetPassword = async (email: string) => {
+    if (!auth) throw new Error('Firebase not initialized');
+    await sendPasswordResetEmail(auth, email);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, userRole, loading, signIn, signUp, signInWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, userRole, loading, signIn, signUp, signInWithGoogle, logout, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );

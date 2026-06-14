@@ -8,6 +8,8 @@ import { Sora, JetBrains_Mono } from 'next/font/google';
 import '../styles/globals.css';
 import SmoothScroll from '@/components/layout/SmoothScroll';
 import CustomCursor from '@/components/layout/CustomCursor';
+import { AuthProvider } from '@/lib/auth/AuthContext';
+import { ThemeProvider } from '@/lib/theme/ThemeContext';
 
 const sora = Sora({
   subsets: ['latin'],
@@ -38,23 +40,30 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sora.variable} ${jetbrains.variable} scroll-smooth`}>
+      <head>
+        <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/billabong" />
+      </head>
       <body className="bg-[#0a0e14] text-[#f8fafc] antialiased selection:bg-greenish-lime selection:text-black overflow-x-hidden">
-        <SmoothScroll>
-          <CustomCursor />
-          
-          {/* Global Texture Overlays */}
-          <div className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] mix-blend-overlay noise-bg" />
-          
-          <main className="relative z-10">
-            {children}
-          </main>
-          
-          {/* Kinetic Background Elements */}
-          <div className="fixed inset-0 pointer-events-none z-0">
-            <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] bg-greenish-bright/5 rounded-full blur-[180px] animate-pulse" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-greenish-lime/5 rounded-full blur-[150px]" />
-          </div>
-        </SmoothScroll>
+        <ThemeProvider>
+          <AuthProvider>
+            <SmoothScroll>
+              <CustomCursor />
+              
+              {/* Global Texture Overlays */}
+              <div className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] mix-blend-overlay noise-bg" />
+              
+              <main className="relative z-10">
+                {children}
+              </main>
+              
+              {/* Kinetic Background Elements */}
+              <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] bg-greenish-bright/5 rounded-full blur-[180px] animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-greenish-lime/5 rounded-full blur-[150px]" />
+              </div>
+            </SmoothScroll>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,59 +1,296 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { useState } from 'react';
-import LiquidButton from '@/components/ui/LiquidButton';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { Mail, Lock, User, Phone, Eye, EyeOff, ChevronRight } from 'lucide-react';
 
 export default function RegisterPage() {
-  const [userType, setUserType] = useState<'customer' | 'landscaper'>('customer');
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const router = useRouter();
+  const { signUp, signInWithGoogle, user } = useAuth();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const [role, setRole] = useState<'customer' | 'landscaper'>('customer');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  if (user) {
+    router.push('/home');
+    return null;
+  }
+
+  const passwordStrength = () => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    return score;
   };
 
+  const strengthLabel = ['', 'Zayıf', 'Orta', 'İyi', 'Güçlü'];
+  const strengthColor = ['', '#EF4444', '#F59E0B', '#3B82F6', '#4CAF50'];
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!name.trim()) { setError('Ad ve soyad gerekli'); return; }
+    if (!email.includes('@')) { setError('Geçerli bir e-posta girin'); return; }
+    if (password.length < 8) { setError('Şifre en az 8 karakter olmalı'); return; }
+    if (password !== confirmPassword) { setError('Şifreler eşleşmiyor'); return; }
+
+    setIsLoading(true);
+    try {
+      await signUp(email, password, name, role);
+      router.push('/verify');
+    } catch (err: any) {
+      const msg =
+        err.code === 'auth/email-already-in-use'
+          ? 'Bu e-posta zaten kayıtlı'
+          : err.code === 'auth/weak-password'
+          ? 'Şifre çok zayıf'
+          : err.code === 'auth/invalid-email'
+          ? 'Geçersiz e-posta formatı'
+          : 'Kayıt olurken bir hata oluştu';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleRegister = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await signInWithGoogle(role);
+      router.push('/home');
+    } catch {
+      setError('Google ile kayıt başarısız');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const score = passwordStrength();
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen bg-gradient-to-b from-blue-50 via-blue-100 to-blue-200 p-8"
-    >
-      <header className="text-center mb-8">
-        <h1 className="text-5xl font-extrabold text-blue-900">Register</h1>
-        <p className="text-lg text-gray-700">Create your account to get started</p>
-      </header>
+    <div className="min-h-screen bg-nature-bg flex items-center justify-center p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-[420px] bg-white rounded-[24px] border border-nature-border shadow-[0_8px_32px_rgba(0,0,0,0.06)] p-8 sm:p-10"
+      >
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <div className="logo-gradient text-[38px]">Peyzart</div>
+          <p className="text-[#888] text-sm mt-2">Hesap oluştur ve başla ✨</p>
+        </div>
 
-      <section className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 space-y-6">
-        <input
-          type="text"
-          placeholder="Name"
-          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <LiquidButton label="Sign Up" onClick={() => alert('Account Created!')} variant="primary" />
-      </section>
+        {/* Role Switcher */}
+        <div className="flex bg-nature-bg rounded-[12px] p-1 mb-6">
+          <button
+            onClick={() => setRole('customer')}
+            className={`flex-1 text-center py-2.5 text-sm font-semibold rounded-[10px] transition-all ${
+              role === 'customer'
+                ? 'bg-white text-peyzart-green shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
+                : 'text-[#999] hover:text-[#666]'
+            }`}
+          >
+            Müşteri
+          </button>
+          <button
+            onClick={() => setRole('landscaper')}
+            className={`flex-1 text-center py-2.5 text-sm font-semibold rounded-[10px] transition-all ${
+              role === 'landscaper'
+                ? 'bg-white text-peyzart-green shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
+                : 'text-[#999] hover:text-[#666]'
+            }`}
+          >
+            Peyzajcı
+          </button>
+        </div>
 
-      <footer className="mt-16 text-center text-gray-600">
-        <p>&copy; 2026 Peyzart. All rights reserved.</p>
-      </footer>
-    </motion.div>
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-[12px] p-3 mb-4 flex items-center gap-2">
+            <span>⚠️</span>
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Register Form */}
+        <form onSubmit={handleRegister} className="space-y-3.5">
+          {/* Name */}
+          <div>
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ad Soyad"
+                required
+                disabled={isLoading}
+                className="w-full bg-white border border-nature-input-border rounded-[14px] pl-11 pr-4 py-3.5 text-sm text-[#333] outline-none focus:border-bright-green/40 focus:ring-2 focus:ring-bright-green/10 transition-all disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="E-posta Adresi"
+                required
+                disabled={isLoading}
+                className="w-full bg-white border border-nature-input-border rounded-[14px] pl-11 pr-4 py-3.5 text-sm text-[#333] outline-none focus:border-bright-green/40 focus:ring-2 focus:ring-bright-green/10 transition-all disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          {/* Phone */}
+          <div>
+            <div className="relative">
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Telefon (isteğe bağlı)"
+                disabled={isLoading}
+                className="w-full bg-white border border-nature-input-border rounded-[14px] pl-11 pr-4 py-3.5 text-sm text-[#333] outline-none focus:border-bright-green/40 focus:ring-2 focus:ring-bright-green/10 transition-all disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Şifre (min. 8 karakter)"
+                required
+                disabled={isLoading}
+                className="w-full bg-white border border-nature-input-border rounded-[14px] pl-11 pr-11 py-3.5 text-sm text-[#333] outline-none focus:border-bright-green/40 focus:ring-2 focus:ring-bright-green/10 transition-all disabled:opacity-50"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#bbb] hover:text-[#666]"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            {/* Password Strength */}
+            {password.length > 0 && (
+              <div className="flex gap-2 mt-2 ml-1">
+                <div className="flex-1 h-1.5 rounded-full bg-nature-border overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{ width: `${(score / 4) * 100}%`, background: strengthColor[score] }}
+                  />
+                </div>
+                <span className="text-[10px] font-semibold" style={{ color: strengthColor[score] }}>
+                  {strengthLabel[score]}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Şifre Tekrar"
+                required
+                disabled={isLoading}
+                className="w-full bg-white border border-nature-input-border rounded-[14px] pl-11 pr-4 py-3.5 text-sm text-[#333] outline-none focus:border-bright-green/40 focus:ring-2 focus:ring-bright-green/10 transition-all disabled:opacity-50"
+              />
+            </div>
+            {confirmPassword.length > 0 && password !== confirmPassword && (
+              <p className="text-[10px] text-error-red mt-1 ml-1">Şifreler eşleşmiyor</p>
+            )}
+          </div>
+
+          {/* Badges */}
+          <div className="flex gap-2 flex-wrap">
+            {password.length >= 8 ? (
+              <span className="bg-green-50 text-medium-green rounded-[50px] px-2.5 py-1 text-[10px] font-semibold">✅ 8+ karakter</span>
+            ) : password.length > 0 ? (
+              <span className="bg-red-50 text-error-red rounded-[50px] px-2.5 py-1 text-[10px] font-semibold">⚠️ En az 8 karakter</span>
+            ) : null}
+            {/[A-Z]/.test(password) && password.length > 0 && (
+              <span className="bg-green-50 text-medium-green rounded-[50px] px-2.5 py-1 text-[10px] font-semibold">✅ Büyük harf</span>
+            )}
+            {/[0-9]/.test(password) && password.length > 0 && (
+              <span className="bg-green-50 text-medium-green rounded-[50px] px-2.5 py-1 text-[10px] font-semibold">✅ Rakam</span>
+            )}
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-peyzart-green/30 border-t-peyzart-green rounded-full animate-spin" />
+                Hesap oluşturuluyor...
+              </>
+            ) : (
+              <>
+                Hesap Oluştur
+                <ChevronRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px bg-nature-border" />
+          <span className="text-xs text-[#bbb] font-medium">veya</span>
+          <div className="flex-1 h-px bg-nature-border" />
+        </div>
+
+        {/* Google Register */}
+        <button
+          onClick={handleGoogleRegister}
+          disabled={isLoading}
+          className="w-full py-3 border border-nature-input-border rounded-[14px] text-sm font-semibold text-[#555] hover:bg-nature-bg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          <span>🔵</span>
+          Google ile Kayıt Ol
+        </button>
+
+        {/* Login Link */}
+        <p className="text-center mt-6 text-sm text-[#888]">
+          Zaten hesabın var mı?{' '}
+          <Link href="/login" className="font-extrabold bg-gradient-to-r from-bright-green to-lime bg-clip-text text-transparent">
+            Giriş Yap
+          </Link>
+        </p>
+      </motion.div>
+    </div>
   );
 }

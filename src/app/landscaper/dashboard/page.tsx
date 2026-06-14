@@ -122,7 +122,7 @@ export default function LandscaperDashboard() {
 
   return (
     <div className="min-h-screen bg-peyzart-darker overflow-hidden">
-      <Navbar userType="landscaper" />
+      <Navbar />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">

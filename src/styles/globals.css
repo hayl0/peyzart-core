@@ -2,38 +2,59 @@
 
 @plugin "tailwindcss-animate";
 
-/* 
- * PEYZART CORE DESIGN SYSTEM
- * Architecture: Clean & Scalable
- */
-
 @theme {
-  --font-sans: 'Sora', var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Billabong', 'Sora', sans-serif;
+  --font-script: 'Billabong', cursive;
   --font-mono: 'JetBrains Mono', monospace;
-  
-  --radius-xxl: 3rem;
-  --radius-xl: 2.5rem;
-  --radius-lg: 1.5rem;
-  
-  --color-brand-lime: #cddc39;
-  --color-brand-green: #4caf50;
-  --color-brand-dark: #0a0e14;
+
+  --color-nature-bg: #F5F7F0;
+  --color-nature-white: #FFFFFF;
+  --color-nature-border: #E8EDE0;
+  --color-nature-input-border: #E0E6D8;
+  --color-dark-forest: #0A2E1A;
+  --color-peyzart-green: #1B5E20;
+  --color-medium-green: #2E7D32;
+  --color-bright-green: #4CAF50;
+  --color-lime: #CDDC39;
+  --color-warning-yellow: #FBC02D;
+  --color-error-red: #EF4444;
+
+  --radius-card: 24px;
+  --radius-input: 14px;
+  --radius-button: 50px;
+  --radius-badge: 50px;
 }
 
 :root {
   --background: #0a0e14;
   --foreground: #f8fafc;
-  
-  /* Glassmorphism Variables for stability */
   --glass-bg: rgba(255, 255, 255, 0.02);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: 40px;
+
+  --theme-bg: #EDF0E6;
+  --theme-card: #FAFBF8;
+  --theme-input: #F5F7F0;
+  --theme-border: #DDE4D5;
+  --theme-text: #0A2E1A;
+  --theme-text-secondary: #888;
+  --theme-text-muted: #999;
+  --theme-icon: #1B5E20;
+  --theme-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
-/* 
- * CORE UI COMPONENTS
- * Pure CSS classes to ensure zero build conflicts with Turbopack.
- */
+[data-theme="dark"] {
+  --theme-bg: #0A2E1A;
+  --theme-card: #14281A;
+  --theme-input: rgba(255, 255, 255, 0.05);
+  --theme-border: rgba(255, 255, 255, 0.06);
+  --theme-text: #F0F0F0;
+  --theme-text-secondary: #999;
+  --theme-text-muted: #666;
+  --theme-icon: #ccc;
+  --theme-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
 
 .glass-panel {
   background: var(--glass-bg);
@@ -59,9 +80,6 @@
   transform: translateY(-8px) scale(1.01);
 }
 
-/* 
- * TEXTURE & NOISE
- */
 .noise-bg {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   position: fixed;
@@ -72,9 +90,6 @@
   mix-blend-mode: overlay;
 }
 
-/* 
- * TYPOGRAPHY
- */
 h1, h2, h3, h4 {
   letter-spacing: -0.04em;
   line-height: 1;
@@ -88,9 +103,68 @@ h1, h2, h3, h4 {
   background-clip: text;
 }
 
-/* 
- * GLOBAL DEFAULTS
- */
+.logo-gradient {
+  font-family: 'Billabong', cursive;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, #0a2e1a 0%, #1b5e20 25%, #4caf50 50%, #cddc39 75%, #fbc02d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06));
+}
+
+.nature-card {
+  background: #FFFFFF;
+  border: 1px solid #E8EDE0;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.nature-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #CDDC39 0%, #4CAF50 100%);
+  border: none;
+  border-radius: 50px;
+  padding: 14px 28px;
+  color: #1B5E20;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(205, 220, 57, 0.25);
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(205, 220, 57, 0.35);
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1.5px solid #4CAF50;
+  border-radius: 50px;
+  padding: 14px 28px;
+  color: #2E7D32;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(76, 175, 80, 0.06);
+}
+
 * {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
@@ -104,6 +178,7 @@ body {
   overflow-x: hidden;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 ::-webkit-scrollbar { width: 4px; }

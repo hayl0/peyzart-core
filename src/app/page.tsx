@@ -90,7 +90,7 @@ export default function Home() {
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 p-8 flex justify-between items-center max-w-7xl mx-auto mix-blend-difference">
-        <Link href="/" className="text-2xl font-black tracking-tighter text-white italic">PEYZART</Link>
+        <Link href="/" className="logo-gradient text-2xl">Peyzart</Link>
         <div className="flex items-center gap-10">
           <Link href="/home" className="text-sm font-bold tracking-widest text-white/60 hover:text-white transition-colors uppercase">Enter App</Link>
           <div className="w-12 h-0.5 bg-white/20" />

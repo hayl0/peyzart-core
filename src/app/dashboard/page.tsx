@@ -1,3 +1,4 @@
+"use client";
 import LiquidButton from '@/components/ui/LiquidButton';
 import React from 'react';
 
