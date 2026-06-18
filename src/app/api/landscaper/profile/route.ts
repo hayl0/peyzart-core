@@ -5,14 +5,24 @@ export const GET = async (request: Request) => {
   try {
     const user = await verifyAuth(request);
     if (user.role !== 'LANDSCAPER') return errorResponse('Forbidden', 403);
+
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: { landscaperProfile: true },
+    });
+
+    if (!dbUser) return errorResponse('User not found', 404);
+    if (!dbUser.landscaperProfile) return errorResponse('Landscaper profile not found', 404);
+
     return successResponse({
-      name: user.name,
-      email: user.email,
-      phone: '+90 555 123 4567',
-      address: 'İstanbul, Türkiye',
-      companyName: 'Yeşil Bahçe Peyzaj',
-      bio: '10 yıllık deneyim',
-      notifications: { newOrder: true, payment: true, review: true, marketing: false },
+      name: dbUser.name,
+      email: dbUser.email,
+      phone: dbUser.phone,
+      address: dbUser.address,
+      companyName: dbUser.landscaperProfile.companyName,
+      bio: dbUser.landscaperProfile.bio,
+      experience: dbUser.landscaperProfile.experience,
+      isVerified: dbUser.landscaperProfile.isVerified,
     });
   } catch (e: any) {
     return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
@@ -21,10 +31,40 @@ export const GET = async (request: Request) => {
 
 export const PATCH = async (request: Request) => {
   try {
-    const user = await verifyAuth(request);
-    if (user.role !== 'LANDSCAPER') return errorResponse('Forbidden', 403);
+    const authUser = await verifyAuth(request);
+    if (authUser.role !== 'LANDSCAPER') return errorResponse('Forbidden', 403);
+
     const body = await request.json();
-    return successResponse({ ...body });
+    const { name, phone, address, companyName, bio, experience } = body;
+
+    const [updatedUser] = await Promise.all([
+      prisma.user.update({
+        where: { id: authUser.id },
+        data: {
+          ...(name !== undefined && { name }),
+          ...(phone !== undefined && { phone }),
+          ...(address !== undefined && { address }),
+        },
+      }),
+      prisma.landscaperProfile.updateMany({
+        where: { userId: authUser.id },
+        data: {
+          ...(companyName !== undefined && { companyName }),
+          ...(bio !== undefined && { bio }),
+          ...(experience !== undefined && { experience: parseInt(experience) }),
+        },
+      }),
+    ]);
+
+    return successResponse({
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
+      companyName,
+      bio,
+      experience,
+    });
   } catch (e: any) {
     return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
