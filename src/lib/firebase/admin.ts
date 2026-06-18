@@ -2,6 +2,10 @@ import type { Auth } from 'firebase-admin/auth';
 
 let adminAuthInstance: Auth | null | undefined = undefined;
 
+function undynamic(mod: string) {
+  return Function('return import("' + mod + '")')() as Promise<any>;
+}
+
 async function getAdminAuth(): Promise<Auth | null> {
   if (adminAuthInstance !== undefined) return adminAuthInstance;
 
@@ -22,23 +26,17 @@ async function getAdminAuth(): Promise<Auth | null> {
   }
 
   try {
-    // Use Function constructor to avoid Turbopack's static module analysis
-    const getFirebaseAdmin = new Function(
-      'return import("firebase-admin").then(m => ({ initializeApp: m.initializeApp, cert: m.cert, getApps: m.getApps, getApp: m.getApp }))'
-    ) as () => Promise<{
-      initializeApp: Function;
-      cert: Function;
-      getApps: Function;
-      getApp: Function;
-    }>;
-    const getAuth = new Function(
-      'return import("firebase-admin/auth").then(m => m.getAuth)'
-    ) as () => Promise<Function>;
+    // Dynamic module names to avoid Turbopack static analysis
+    const a = 'firebase-admin';
+    const b = 'auth';
+    const c = a + '/' + b;
 
-    const { initializeApp, cert, getApps, getApp } = await getFirebaseAdmin();
-    const authFn = await getAuth();
+    const adminMod = await undynamic(a);
+    const { initializeApp, cert, getApps, getApp } = adminMod;
+    const authMod = await undynamic(c);
+    const { getAuth } = authMod;
     const app = getApps().length > 0 ? getApp() : initializeApp({ credential: cert(serviceAccount) });
-    adminAuthInstance = authFn(app) as Auth;
+    adminAuthInstance = getAuth(app);
     return adminAuthInstance;
   } catch (e) {
     console.warn('Firebase Admin initialization failed:', e);
