@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Camera, Save, LogOut, Trash2, Lock, X } from 'lucide-react';
+import { api } from '@/lib/api-client';
 import ShimmerSkeleton from '../_components/ShimmerSkeleton';
 import ErrorBanner from '../_components/ErrorBanner';
 import Toast from '../_components/Toast';
@@ -16,6 +17,20 @@ const NOTIFICATION_ITEMS = [
 
 type NotificationKey = (typeof NOTIFICATION_ITEMS)[number]['key'];
 
+const API_KEY_MAP: Record<NotificationKey, string> = {
+  newOrders: 'newOrder',
+  payments: 'payment',
+  comments: 'review',
+  marketing: 'marketing',
+};
+
+const KEY_FROM_API: Record<string, NotificationKey> = {
+  newOrder: 'newOrders',
+  payment: 'payments',
+  review: 'comments',
+  marketing: 'marketing',
+};
+
 const DEFAULT_NOTIFICATIONS: Record<NotificationKey, boolean> = {
   newOrders: true,
   payments: true,
@@ -27,10 +42,10 @@ export default function LandscaperSettingsPage() {
   const [status, setStatus] = useState<'loading' | 'error' | 'success'>('loading');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const [name, setName] = useState('Halil Kaya');
-  const [email, setEmail] = useState('halil@peyzart.com');
-  const [phone, setPhone] = useState('+90 532 123 45 67');
-  const [address, setAddress] = useState('İstanbul, Türkiye');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
 
   const [notifications, setNotifications] = useState<Record<NotificationKey, boolean>>(DEFAULT_NOTIFICATIONS);
 
@@ -40,27 +55,82 @@ export default function LandscaperSettingsPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
+  const fetchData = async () => {
+    try {
+      setStatus('loading');
+      const [profile, notifData] = await Promise.all([
+        api.get<{ name: string; email: string; phone: string; address: string }>('/api/landscaper/profile'),
+        api.get<{ newOrder: boolean; payment: boolean; review: boolean; marketing: boolean }>('/api/landscaper/notifications'),
+      ]);
+      setName(profile.name);
+      setEmail(profile.email);
+      setPhone(profile.phone);
+      setAddress(profile.address);
+      setNotifications({
+        newOrders: notifData.newOrder,
+        payments: notifData.payment,
+        comments: notifData.review,
+        marketing: notifData.marketing,
+      });
+      setStatus('success');
+    } catch {
+      setStatus('error');
+    }
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => setStatus('success'), 1000);
-    return () => clearTimeout(timer);
+    fetchData();
   }, []);
 
-  const handleSaveProfile = () => {
-    setTimeout(() => {
+  const handleSaveProfile = async () => {
+    try {
+      await api.patch('/api/landscaper/profile', { name, phone, address });
       setToast({ message: 'Profil bilgileri güncellendi', type: 'success' });
-    }, 500);
+    } catch {
+      setToast({ message: 'Profil güncellenirken bir hata oluştu', type: 'error' });
+    }
   };
 
-  const handleChangePassword = () => {
-    setPasswordModal(false);
-    setOldPassword('');
-    setNewPassword('');
-    setConfirmNewPassword('');
-    setToast({ message: 'Şifreniz başarıyla değiştirildi', type: 'success' });
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmNewPassword) {
+      setToast({ message: 'Yeni şifreler eşleşmiyor', type: 'error' });
+      return;
+    }
+    try {
+      await api.post('/api/landscaper/password', { oldPassword, newPassword });
+      setPasswordModal(false);
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setToast({ message: 'Şifreniz başarıyla değiştirildi', type: 'success' });
+    } catch {
+      setToast({ message: 'Şifre değiştirilirken bir hata oluştu', type: 'error' });
+    }
   };
 
-  const toggleNotification = (key: NotificationKey) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleNotification = async (key: NotificationKey) => {
+    const updated = { ...notifications, [key]: !notifications[key] };
+    setNotifications(updated);
+    const apiPrefs: Record<string, boolean> = {};
+    for (const k of Object.keys(updated) as NotificationKey[]) {
+      apiPrefs[API_KEY_MAP[k]] = updated[k];
+    }
+    try {
+      await api.patch('/api/landscaper/notifications', apiPrefs);
+    } catch {
+      setNotifications(notifications);
+      setToast({ message: 'Bildirim tercihleri güncellenirken bir hata oluştu', type: 'error' });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await api.post('/api/landscaper/account', { action: 'delete' });
+      setDeleteModal(false);
+      setToast({ message: 'Hesabınız silindi', type: 'success' });
+    } catch {
+      setToast({ message: 'Hesap silinirken bir hata oluştu', type: 'error' });
+    }
   };
 
   return (
@@ -74,7 +144,7 @@ export default function LandscaperSettingsPage() {
       )}
 
       {status === 'error' && (
-        <ErrorBanner message="Ayarlar yüklenirken bir hata oluştu" onRetry={() => setStatus('loading')} />
+        <ErrorBanner message="Ayarlar yüklenirken bir hata oluştu" onRetry={fetchData} />
       )}
 
       {status === 'success' && (
@@ -84,7 +154,7 @@ export default function LandscaperSettingsPage() {
             <h2 className="text-[11px] font-bold tracking-[0.5px] text-white/50 uppercase mb-5">Profil Bilgileri</h2>
             <div className="flex items-center gap-4 mb-6">
               <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-bright-green to-lime flex items-center justify-center text-2xl font-bold text-dark-forest shrink-0">
-                H
+                {name.charAt(0)}
                 <button className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all">
                   <Camera size={12} className="text-white" />
                 </button>
@@ -214,10 +284,7 @@ export default function LandscaperSettingsPage() {
           message="Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
           variant="danger"
           confirmLabel="Hesabı Sil"
-          onConfirm={() => {
-            setDeleteModal(false);
-            setToast({ message: 'Hesabınız silindi', type: 'success' });
-          }}
+          onConfirm={handleDeleteAccount}
           onCancel={() => setDeleteModal(false)}
         />
       )}

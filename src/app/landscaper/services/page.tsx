@@ -1,14 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Power, Edit2, Clock, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import ShimmerSkeleton from '../_components/ShimmerSkeleton';
 import EmptyState from '../_components/EmptyState';
 import ErrorBanner from '../_components/ErrorBanner';
 import Toast from '../_components/Toast';
+import { api, ApiError } from '@/lib/api-client';
+
+interface ServiceResponse {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  unit: string;
+  active: boolean;
+}
 
 interface Service {
-  id: number;
+  id: string;
   name: string;
   desc: string;
   price: number;
@@ -25,66 +35,112 @@ interface DayHours {
   isOpen: boolean;
 }
 
-const INITIAL_SERVICES: Service[] = [
-  { id: 1, name: 'Çim Biçme', desc: 'Profesyonel çim biçme ve bakım', price: 350, unit: 'seans', active: true, duration: '2-3 saat', rating: 4.8 },
-  { id: 2, name: 'Bitki Dikimi', desc: 'Ağaç, çiçek ve peyzaj düzenlemesi', price: 450, unit: 'm²', active: true, duration: '3-4 saat', rating: 4.9 },
-  { id: 3, name: 'Ağaç Budama', desc: 'Büyük ağaçlar için özel budama', price: 800, unit: 'adet', active: true, duration: '4-5 saat', rating: 4.7 },
-  { id: 4, name: 'Sulama Sistemi', desc: 'Otomatik sulama sistemi kurulumu', price: 1200, unit: 'proje', active: false, duration: '6-8 saat', rating: 4.6 },
-];
-
-const DEFAULT_HOURS: DayHours[] = [
-  { day: 'Pzt', start: '09:00', end: '18:00', isOpen: true },
-  { day: 'Sal', start: '09:00', end: '18:00', isOpen: true },
-  { day: 'Çar', start: '09:00', end: '18:00', isOpen: true },
-  { day: 'Per', start: '09:00', end: '18:00', isOpen: true },
-  { day: 'Cum', start: '09:00', end: '18:00', isOpen: true },
-  { day: 'Cmt', start: '10:00', end: '16:00', isOpen: true },
-  { day: 'Paz', start: '10:00', end: '16:00', isOpen: false },
-];
-
 export default function ServicesPage() {
-  const [status, setStatus] = useState<'loading' | 'error' | 'empty' | 'success'>('success');
-  const [services, setServices] = useState<Service[]>(INITIAL_SERVICES);
+  const [status, setStatus] = useState<'loading' | 'error' | 'empty' | 'success'>('loading');
+  const [services, setServices] = useState<Service[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState({ name: '', desc: '', price: '', unit: 'seans', duration: '' });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ name: '', desc: '', price: '', unit: 'seans' });
   const [showHours, setShowHours] = useState(false);
-  const [workHours, setWorkHours] = useState<DayHours[]>(DEFAULT_HOURS);
+  const [workHours, setWorkHours] = useState<DayHours[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const toggleService = (id: number) => {
-    setServices(services.map(s => s.id === id ? { ...s, active: !s.active } : s));
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+  };
+
+  const fetchData = async () => {
+    setStatus('loading');
+    try {
+      const [servicesData, availabilityData] = await Promise.all([
+        api.get<{ services: ServiceResponse[] }>('/api/landscaper/services'),
+        api.get<{ workingHours: DayHours[] }>('/api/landscaper/availability'),
+      ]);
+      setServices(
+        servicesData.services.map(s => ({
+          id: s.id,
+          name: s.name,
+          desc: s.description || '',
+          price: s.price,
+          unit: s.unit,
+          active: s.active,
+          duration: '-',
+          rating: 0,
+        }))
+      );
+      if (availabilityData.workingHours) {
+        setWorkHours(availabilityData.workingHours);
+      }
+      setStatus(servicesData.services.length === 0 ? 'empty' : 'success');
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const toggleService = async (id: string) => {
+    const service = services.find(s => s.id === id);
+    if (!service) return;
+    const newActive = !service.active;
+    setServices(services.map(s => s.id === id ? { ...s, active: newActive } : s));
+    try {
+      await api.patch(`/api/landscaper/services/${id}`, { isActive: newActive });
+    } catch (e) {
+      setServices(services.map(s => s.id === id ? { ...s, active: !newActive } : s));
+      showToast(e instanceof ApiError ? e.message : 'Bir hata oluştu', 'error');
+    }
   };
 
   const openAddForm = () => {
     setEditingId(null);
-    setForm({ name: '', desc: '', price: '', unit: 'seans', duration: '' });
+    setForm({ name: '', desc: '', price: '', unit: 'seans' });
     setShowForm(true);
   };
 
   const openEditForm = (service: Service) => {
     setEditingId(service.id);
-    setForm({ name: service.name, desc: service.desc, price: String(service.price), unit: service.unit, duration: service.duration });
+    setForm({ name: service.name, desc: service.desc, price: String(service.price), unit: service.unit });
     setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false);
     setEditingId(null);
-    setForm({ name: '', desc: '', price: '', unit: 'seans', duration: '' });
+    setForm({ name: '', desc: '', price: '', unit: 'seans' });
   };
 
-  const saveService = () => {
+  const saveService = async () => {
     if (!form.name || !form.price) return;
-    const { name, desc, price, unit, duration } = form;
-    if (editingId) {
-      setServices(services.map(s => s.id === editingId ? { ...s, name, desc, price: Number(price), unit, duration } : s));
-      setToast({ message: 'Hizmet güncellendi', type: 'success' });
-    } else {
-      setServices([...services, { id: Date.now(), name, desc, price: Number(price), unit, duration, active: true, rating: 0 }]);
-      setToast({ message: 'Hizmet eklendi', type: 'success' });
+    const { name, desc, price, unit } = form;
+    try {
+      if (editingId) {
+        await api.patch(`/api/landscaper/services/${editingId}`, { name, description: desc, price: Number(price), unit });
+        setServices(services.map(s => s.id === editingId ? { ...s, name, desc, price: Number(price), unit } : s));
+        showToast('Hizmet güncellendi', 'success');
+      } else {
+        const res = await api.post<{ service: { id: string; name: string; description: string; price: number; unit: string; active: boolean } }>(
+          '/api/landscaper/services',
+          { name, description: desc, price: Number(price), unit, isActive: true }
+        );
+        setServices([...services, {
+          id: res.service.id,
+          name: res.service.name,
+          desc: res.service.description,
+          price: res.service.price,
+          unit: res.service.unit,
+          active: true,
+          duration: '-',
+          rating: 0,
+        }]);
+        showToast('Hizmet eklendi', 'success');
+      }
+      closeForm();
+    } catch (e) {
+      showToast(e instanceof ApiError ? e.message : 'Bir hata oluştu', 'error');
     }
-    closeForm();
   };
 
   const toggleDay = (index: number) => {
@@ -93,6 +149,15 @@ export default function ServicesPage() {
 
   const updateDay = (index: number, field: 'start' | 'end', value: string) => {
     setWorkHours(workHours.map((d, i) => i === index ? { ...d, [field]: value } : d));
+  };
+
+  const saveHours = async () => {
+    try {
+      await api.patch('/api/landscaper/availability', { workingHours: workHours });
+      showToast('Çalışma saatleri güncellendi', 'success');
+    } catch (e) {
+      showToast(e instanceof ApiError ? e.message : 'Bir hata oluştu', 'error');
+    }
   };
 
   if (status === 'loading') {
@@ -120,7 +185,7 @@ export default function ServicesPage() {
             Hizmet Ekle
           </button>
         </div>
-        <ErrorBanner message="Hizmetler yüklenirken bir hata oluştu" onRetry={() => setStatus('success')} />
+        <ErrorBanner message="Hizmetler yüklenirken bir hata oluştu" onRetry={fetchData} />
       </div>
     );
   }
@@ -160,8 +225,6 @@ export default function ServicesPage() {
                   <option value="adet">Adet</option>
                   <option value="proje">Proje</option>
                 </select>
-                <input value={form.duration} onChange={e => setForm({...form, duration: e.target.value})} placeholder="Süre"
-                  className="flex-1 bg-white/5 border border-white/10 rounded-[14px] px-4 py-3 text-sm text-white outline-none focus:border-bright-green/40 transition-all placeholder:text-white/30" />
               </div>
               <div className="flex gap-2 pt-2">
                 <button onClick={saveService} className="px-6 py-3 bg-bright-green text-white rounded-[12px] text-xs font-bold hover:bg-bright-green/90 transition-all">
@@ -189,7 +252,7 @@ export default function ServicesPage() {
                     <Clock size={11} /> {s.duration} / {s.unit}
                   </div>
                   <div className="flex items-center justify-end gap-3 pt-1">
-                    <span className="text-lg font-extrabold text-white">₺{s.price}</span>
+                    <span className="text-lg font-extrabold text-white">₺{new Intl.NumberFormat('tr-TR').format(s.price)}</span>
                     <button onClick={() => toggleService(s.id)}
                       className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${s.active ? 'bg-bright-green/20 text-bright-green' : 'bg-white/5 text-white/30'}`}>
                       <Power size={14} />
@@ -231,6 +294,10 @@ export default function ServicesPage() {
                 </button>
               </div>
             ))}
+            <button onClick={saveHours}
+              className="mt-3 px-5 py-2.5 bg-bright-green text-white rounded-[12px] text-xs font-bold hover:bg-bright-green/90 transition-all">
+              Kaydet
+            </button>
           </div>
         )}
       </div>

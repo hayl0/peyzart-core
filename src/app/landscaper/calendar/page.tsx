@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Circle, Plus } from 'lucide-react';
 import ShimmerSkeleton from '@/app/landscaper/_components/ShimmerSkeleton';
 import EmptyState from '@/app/landscaper/_components/EmptyState';
 import ErrorBanner from '@/app/landscaper/_components/ErrorBanner';
+import { api } from '@/lib/api-client';
 
 interface Appointment {
   time: string;
@@ -19,29 +20,26 @@ interface DayInfo {
   isCurrentMonth: boolean;
   isToday: boolean;
   appointments: Appointment[];
+  isBlocked: boolean;
 }
 
-const SAMPLE_APPOINTMENTS: Record<string, Appointment[]> = {
-  '2026-5-5': [
-    { time: '10:00', customer: 'Ahmet Yılmaz', service: 'Çim Biçme' },
-    { time: '14:00', customer: 'Zeynep Kaya', service: 'Bitki Dikimi' },
-  ],
-  '2026-5-12': [
-    { time: '09:30', customer: 'Can Demir', service: 'Sulama Sistemi' },
-  ],
-  '2026-5-15': [
-    { time: '11:00', customer: 'Mehmet Şahin', service: 'Çim Biçme' },
-    { time: '15:30', customer: 'Elif Demirtaş', service: 'Peyzaj Tasarım' },
-  ],
-  '2026-5-22': [
-    { time: '13:00', customer: 'Ali Yıldız', service: 'Ağaç Budama' },
-  ],
-  '2026-5-28': [
-    { time: '08:00', customer: 'Ayşe Kara', service: 'Çim Biçme' },
-    { time: '10:00', customer: 'Burak Öztürk', service: 'Bitki Dikimi' },
-    { time: '16:00', customer: 'Cemre Ak', service: 'Sulama Sistemi' },
-  ],
-};
+interface OrderItem {
+  id: string;
+  serviceDate: string;
+  serviceName: string;
+  customerName: string;
+  status: string;
+}
+
+interface BlockedDateItem {
+  id: string;
+  date: string;
+  reason: string;
+}
+
+interface WorkingHours {
+  [day: string]: { start: string; end: string; isOpen: boolean };
+}
 
 const DAY_HEADERS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 const MONTHS_TR = [
@@ -49,9 +47,29 @@ const MONTHS_TR = [
   'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
 ];
 
+const EN_TO_TR: Record<string, string> = {
+  monday: 'Pzt',
+  tuesday: 'Sal',
+  wednesday: 'Çar',
+  thursday: 'Per',
+  friday: 'Cum',
+  saturday: 'Cmt',
+  sunday: 'Paz',
+};
+
+const TR_TO_EN: Record<string, string> = {
+  'Pzt': 'monday',
+  'Sal': 'tuesday',
+  'Çar': 'wednesday',
+  'Per': 'thursday',
+  'Cum': 'friday',
+  'Cmt': 'saturday',
+  'Paz': 'sunday',
+};
+
 const TODAY = new Date(2026, 5, 18);
 
-function getCalendarDays(year: number, month: number): DayInfo[] {
+function getCalendarDays(year: number, month: number, appointmentsMap: Record<string, Appointment[]>, blockedDatesSet: Set<string>): DayInfo[] {
   const firstDay = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startOffset = (firstDay.getDay() + 6) % 7;
@@ -69,11 +87,13 @@ function getCalendarDays(year: number, month: number): DayInfo[] {
       isCurrentMonth: false,
       isToday: false,
       appointments: [],
+      isBlocked: false,
     });
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(year, month, d);
+    const key = `${year}-${month}-${d}`;
     days.push({
       day: d,
       month,
@@ -83,7 +103,8 @@ function getCalendarDays(year: number, month: number): DayInfo[] {
         date.getFullYear() === TODAY.getFullYear() &&
         date.getMonth() === TODAY.getMonth() &&
         date.getDate() === TODAY.getDate(),
-      appointments: SAMPLE_APPOINTMENTS[`${year}-${month}-${d}`] || [],
+      appointments: appointmentsMap[key] || [],
+      isBlocked: blockedDatesSet.has(key),
     });
   }
 
@@ -98,37 +119,81 @@ function getCalendarDays(year: number, month: number): DayInfo[] {
       isCurrentMonth: false,
       isToday: false,
       appointments: [],
+      isBlocked: false,
     });
   }
 
   return days;
 }
 
-const DEFAULT_WORK_DAYS: { day: string; isOpen: boolean }[] = [
-  { day: 'Pzt', isOpen: true },
-  { day: 'Sal', isOpen: true },
-  { day: 'Çar', isOpen: true },
-  { day: 'Per', isOpen: true },
-  { day: 'Cum', isOpen: true },
-  { day: 'Cmt', isOpen: true },
-  { day: 'Paz', isOpen: false },
-];
-
 export default function CalendarPage() {
   const [status, setStatus] = useState<'loading' | 'error' | 'success'>('loading');
   const [viewYear, setViewYear] = useState(2026);
   const [viewMonth, setViewMonth] = useState(5);
-  const [selectedDay, setSelectedDay] = useState<DayInfo | null>(null);
-  const [workDays, setWorkDays] = useState(DEFAULT_WORK_DAYS);
+  const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
+  const [workDays, setWorkDays] = useState<{ day: string; isOpen: boolean }[]>([]);
   const [showHolidayPicker, setShowHolidayPicker] = useState(false);
   const [holidayDate, setHolidayDate] = useState('');
 
-  useEffect(() => {
-    const timer = setTimeout(() => setStatus('success'), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const [appointmentsMap, setAppointmentsMap] = useState<Record<string, Appointment[]>>({});
+  const [blockedDatesSet, setBlockedDatesSet] = useState<Set<string>>(new Set());
 
-  const calendarDays = useMemo(() => getCalendarDays(viewYear, viewMonth), [viewYear, viewMonth]);
+  const refresh = useCallback(async () => {
+    try {
+      const [calData, availData] = await Promise.all([
+        api.get<{ orders: OrderItem[]; blockedDates: BlockedDateItem[] }>(
+          `/api/landscaper/calendar?month=${viewMonth + 1}&year=${viewYear}`
+        ),
+        api.get<{ isOpen: boolean; workingHours: WorkingHours }>('/api/landscaper/availability'),
+      ]);
+
+      const map: Record<string, Appointment[]> = {};
+      for (const order of calData.orders) {
+        const d = new Date(order.serviceDate);
+        const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        if (!map[key]) map[key] = [];
+        map[key].push({
+          time: `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`,
+          customer: order.customerName,
+          service: order.serviceName,
+        });
+      }
+      setAppointmentsMap(map);
+
+      const blockedSet = new Set<string>();
+      for (const bd of calData.blockedDates) {
+        const d = new Date(bd.date);
+        const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        blockedSet.add(key);
+      }
+      setBlockedDatesSet(blockedSet);
+
+      const wh = availData.workingHours;
+      setWorkDays(DAY_HEADERS.map(trDay => ({
+        day: trDay,
+        isOpen: wh[TR_TO_EN[trDay]]?.isOpen ?? false,
+      })));
+
+      setStatus('success');
+    } catch {
+      setStatus('error');
+    }
+  }, [viewMonth, viewYear]);
+
+  useEffect(() => {
+    setStatus('loading');
+    refresh();
+  }, [refresh]);
+
+  const calendarDays = useMemo(
+    () => getCalendarDays(viewYear, viewMonth, appointmentsMap, blockedDatesSet),
+    [viewYear, viewMonth, appointmentsMap, blockedDatesSet],
+  );
+
+  const selectedDay = useMemo(() => {
+    if (!selectedDayKey) return null;
+    return calendarDays.find(d => `${d.year}-${d.month}-${d.day}` === selectedDayKey) || null;
+  }, [selectedDayKey, calendarDays]);
 
   const prevMonth = () => {
     if (viewMonth === 0) {
@@ -137,7 +202,7 @@ export default function CalendarPage() {
     } else {
       setViewMonth(viewMonth - 1);
     }
-    setSelectedDay(null);
+    setSelectedDayKey(null);
   };
 
   const nextMonth = () => {
@@ -147,17 +212,33 @@ export default function CalendarPage() {
     } else {
       setViewMonth(viewMonth + 1);
     }
-    setSelectedDay(null);
+    setSelectedDayKey(null);
   };
 
-  const toggleWorkDay = (index: number) => {
-    setWorkDays(workDays.map((d, i) => (i === index ? { ...d, isOpen: !d.isOpen } : d)));
+  const toggleWorkDay = async (index: number) => {
+    const newWorkDays = workDays.map((d, i) => (i === index ? { ...d, isOpen: !d.isOpen } : d));
+    setWorkDays(newWorkDays);
+    try {
+      const wh: WorkingHours = {};
+      for (const wd of newWorkDays) {
+        wh[TR_TO_EN[wd.day]] = { start: '09:00', end: '18:00', isOpen: wd.isOpen };
+      }
+      await api.patch('/api/landscaper/availability', { workingHours: wh });
+    } catch {
+      refresh();
+    }
   };
 
-  const addHoliday = () => {
+  const addHoliday = async () => {
     if (!holidayDate) return;
-    setShowHolidayPicker(false);
-    setHolidayDate('');
+    try {
+      await api.post('/api/landscaper/calendar/block', { date: holidayDate });
+      setShowHolidayPicker(false);
+      setHolidayDate('');
+      refresh();
+    } catch {
+      //
+    }
   };
 
   if (status === 'loading') {
@@ -177,7 +258,7 @@ export default function CalendarPage() {
     return (
       <div className="space-y-6">
         <h1 className="text-xl md:text-2xl font-bold text-white">Takvim</h1>
-        <ErrorBanner message="Takvim yüklenirken bir hata oluştu" onRetry={() => setStatus('loading')} />
+        <ErrorBanner message="Takvim yüklenirken bir hata oluştu" onRetry={() => { setStatus('loading'); refresh(); }} />
       </div>
     );
   }
@@ -216,7 +297,7 @@ export default function CalendarPage() {
               return (
                 <button
                   key={i}
-                  onClick={() => day.isCurrentMonth && setSelectedDay(day)}
+                  onClick={() => day.isCurrentMonth && setSelectedDayKey(`${day.year}-${day.month}-${day.day}`)}
                   disabled={!day.isCurrentMonth}
                   className="relative flex items-center justify-center py-1"
                 >
@@ -233,8 +314,11 @@ export default function CalendarPage() {
                   >
                     {day.day}
                   </div>
-                  {hasAppointments && (
-                    <div className="absolute -bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-bright-green" />
+                  {(hasAppointments || day.isBlocked) && (
+                    <div className="absolute -bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
+                      {hasAppointments && <div className="w-1 h-1 rounded-full bg-bright-green" />}
+                      {day.isBlocked && <div className="w-1 h-1 rounded-full bg-red-400" />}
+                    </div>
                   )}
                 </button>
               );
