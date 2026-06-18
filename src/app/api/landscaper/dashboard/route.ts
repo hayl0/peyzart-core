@@ -80,6 +80,6 @@ export const GET = async (request: Request) => {
       notifications,
     });
   } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : `Internal error: ${e.message}`, 401);
   }
 };
