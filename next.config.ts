@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ['firebase-admin'],
+  // Bundled by default — no serverExternalPackages needed
   headers: async () => {
     return [
       {
