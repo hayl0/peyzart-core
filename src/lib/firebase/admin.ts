@@ -22,11 +22,10 @@ async function getAdminAuth(): Promise<Auth | null> {
   }
 
   try {
-    // Single dynamic import at top level to avoid subpath module resolution issues
     const { initializeApp, cert, getApps, getApp } = await import('firebase-admin');
-    const { getAuth } = await import('firebase-admin');
+    const { getAuth } = await (import('firebase-admin/auth') as Promise<{ getAuth: Function }>);
     const app = getApps().length > 0 ? getApp() : initializeApp({ credential: cert(serviceAccount) });
-    adminAuthInstance = getAuth(app);
+    adminAuthInstance = getAuth(app) as Auth;
     return adminAuthInstance;
   } catch (e) {
     console.warn('Firebase Admin initialization failed:', e);
