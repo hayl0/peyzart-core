@@ -1,6 +1,6 @@
 import type { Auth } from 'firebase-admin/auth';
 
-let adminAuthInstance: Auth | null = null;
+let adminAuthInstance: Auth | null | undefined = undefined;
 
 async function getAdminAuth(): Promise<Auth | null> {
   if (adminAuthInstance !== undefined) return adminAuthInstance;
@@ -22,8 +22,9 @@ async function getAdminAuth(): Promise<Auth | null> {
   }
 
   try {
-    const { initializeApp, cert, getApps, getApp } = await import('firebase-admin/app');
-    const { getAuth } = await import('firebase-admin/auth');
+    // Single dynamic import at top level to avoid subpath module resolution issues
+    const { initializeApp, cert, getApps, getApp } = await import('firebase-admin');
+    const { getAuth } = await import('firebase-admin');
     const app = getApps().length > 0 ? getApp() : initializeApp({ credential: cert(serviceAccount) });
     adminAuthInstance = getAuth(app);
     return adminAuthInstance;
