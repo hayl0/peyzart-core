@@ -1,24 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, User, MapPin, Calendar, Clock, Send, CheckCircle } from 'lucide-react';
+import { ChevronLeft, User, MapPin, Calendar, Clock, CheckCircle } from 'lucide-react';
+import { api } from '@/lib/api-client';
 
-const STEPS = [
-  { label: 'Talep Alındı', time: '10:30', done: true },
-  { label: 'Kabul Edildi', time: '11:00', done: true },
-  { label: 'Hizmet Başladı', time: '14:15', done: true },
-  { label: 'Tamamlandı', time: '-', done: false },
-];
+interface TimelineStep {
+  label: string;
+  time: string;
+  done: boolean;
+}
 
-const MESSAGES = [
-  { id: 1, from: 'provider', text: 'Merhaba! Adresinize gitmek üzere yoldayım', time: '14:20' },
-  { id: 2, from: 'me', text: 'Tahmini ne zaman gelirsiniz?', time: '14:25' },
-  { id: 3, from: 'provider', text: '15-20 dk içinde orada olurum', time: '14:26' },
-];
+interface OrderDetail {
+  id: string;
+  service: string;
+  provider: string;
+  providerRating: number;
+  providerReviews: number;
+  providerPhone: string;
+  date: string;
+  time: string;
+  address: string;
+  price: number;
+  status: string;
+  label: string;
+  timeline: TimelineStep[];
+}
 
 export default function OrderDetailPage() {
-  const [input, setInput] = useState('');
+  const params = useParams<{ id: string }>();
+  const [order, setOrder] = useState<OrderDetail | null>(null);
+
+  useEffect(() => {
+    api.get<OrderDetail>(`/api/orders/${params.id}`).then(setOrder).catch(() => setOrder(null));
+  }, [params.id]);
+
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-[var(--theme-bg)] flex items-center justify-center">
+        <p className="text-sm text-[var(--theme-text-secondary)]">Yükleniyor...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--theme-bg)]">
@@ -35,15 +59,15 @@ export default function OrderDetailPage() {
             {/* Provider Card */}
             <div className="nature-card p-4 flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-bright-green/20 flex items-center justify-center text-bright-green font-bold text-lg">
-                A
+                {order.provider.charAt(0)}
               </div>
               <div>
-                <h2 className="font-bold text-[var(--theme-text)]">Ali Çimen</h2>
-                <p className="text-xs text-[var(--theme-text-secondary)]">⭐ 4.8 · 156 yorum</p>
+                <h2 className="font-bold text-[var(--theme-text)]">{order.provider}</h2>
+                <p className="text-xs text-[var(--theme-text-secondary)]">⭐ {order.providerRating} · {order.providerReviews} yorum</p>
               </div>
-              <button className="ml-auto text-xs font-semibold text-bright-green bg-bright-green/10 px-3 py-1.5 rounded-full hover:bg-bright-green/20 transition-colors">
+              <a href={`tel:${order.providerPhone}`} className="ml-auto text-xs font-semibold text-bright-green bg-bright-green/10 px-3 py-1.5 rounded-full hover:bg-bright-green/20 transition-colors">
                 Ara
-              </button>
+              </a>
             </div>
 
             {/* Map Placeholder */}
@@ -58,7 +82,7 @@ export default function OrderDetailPage() {
             <div className="nature-card p-5">
               <h3 className="font-bold text-sm text-[var(--theme-text)] mb-4">Sipariş Durumu</h3>
               <div className="space-y-0">
-                {STEPS.map((s, i) => (
+                {order.timeline.map((s, i) => (
                   <div key={i} className="flex gap-4">
                     <div className="flex flex-col items-center">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
@@ -66,7 +90,7 @@ export default function OrderDetailPage() {
                       }`}>
                         {s.done ? <CheckCircle size={16} /> : i + 1}
                       </div>
-                      {i < STEPS.length - 1 && (
+                      {i < order.timeline.length - 1 && (
                         <div className={`w-0.5 h-8 ${s.done ? 'bg-bright-green' : 'bg-[var(--theme-border)]'}`} />
                       )}
                     </div>
@@ -85,49 +109,29 @@ export default function OrderDetailPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[var(--theme-text-secondary)]">Hizmet</span>
-                  <span className="font-semibold text-[var(--theme-text)]">Çim Biçme</span>
+                  <span className="font-semibold text-[var(--theme-text)]">{order.service}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[var(--theme-text-secondary)]">Tarih</span>
-                  <span className="font-semibold text-[var(--theme-text)]">18 Nisan 2024 · 14:00</span>
+                  <span className="font-semibold text-[var(--theme-text)]">{order.date} · {order.time}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[var(--theme-text-secondary)]">Adres</span>
-                  <span className="font-semibold text-[var(--theme-text)] text-right max-w-[200px]">Gümüşsuyu Mah. Çevre Yolu No:45</span>
+                  <span className="font-semibold text-[var(--theme-text)] text-right max-w-[200px]">{order.address}</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-[var(--theme-border)]">
                   <span className="font-bold text-[var(--theme-text)]">Toplam</span>
-                  <span className="font-extrabold text-lg text-[var(--theme-text)]">₺450</span>
+                  <span className="font-extrabold text-lg text-[var(--theme-text)]">₺{order.price}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Sidebar: Chat */}
+          {/* Sidebar */}
           <div className="space-y-4">
-            <div className="nature-card p-4 flex flex-col h-[400px]">
-              <h3 className="font-bold text-sm text-[var(--theme-text)] mb-3">Mesajlar</h3>
-              <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1">
-                {MESSAGES.map(msg => (
-                  <div key={msg.id} className={`flex ${msg.from === 'me' ? 'justify-end' : ''}`}>
-                    <div className={`max-w-[80%] px-3.5 py-2 rounded-[16px] text-sm ${
-                      msg.from === 'me'
-                        ? 'bg-bright-green text-white rounded-br-[4px]'
-                        : 'bg-[var(--theme-card)] border border-[var(--theme-border)] text-[var(--theme-text)] rounded-bl-[4px]'
-                    }`}>
-                      <p>{msg.text}</p>
-                      <p className={`text-[10px] mt-0.5 ${msg.from === 'me' ? 'text-white/60' : 'text-[var(--theme-text-muted)]'}`}>{msg.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input type="text" value={input} onChange={e => setInput(e.target.value)} placeholder="Mesaj yaz..."
-                  className="flex-1 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-3.5 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
-                <button className="w-11 h-11 bg-bright-green rounded-full flex items-center justify-center text-white hover:bg-bright-green/90 transition-colors flex-shrink-0">
-                  <Send size={16} />
-                </button>
-              </div>
+            <div className="nature-card p-4 flex flex-col items-center justify-center h-[200px]">
+              <h3 className="font-bold text-sm text-[var(--theme-text)] mb-2">Sohbet</h3>
+              <p className="text-xs text-[var(--theme-text-muted)] text-center">Sohbet özelliği yakında gelecek</p>
             </div>
 
             <button className="w-full py-3 border border-red-200 text-red-500 rounded-[14px] text-sm font-semibold hover:bg-red-50 transition-colors">

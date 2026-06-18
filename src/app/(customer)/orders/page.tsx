@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Package, Star } from 'lucide-react';
+import { api } from '@/lib/api-client';
 
-const ORDERS = [
-  { id: '1', service: 'Çim Bakımı', provider: 'Bahçe Sanatı', date: '12 Haziran 2026', price: 350, status: 'completed', label: 'Tamamlandı' },
-  { id: '2', service: 'Peyzaj Tasarım', provider: 'Yeşil Dünya', date: '8 Haziran 2026', price: 750, status: 'in-progress', label: 'Devam Ediyor' },
-  { id: '3', service: 'Budama & Bakım', provider: 'Doğa Bahçe', date: '1 Haziran 2026', price: 250, status: 'pending', label: 'Bekliyor' },
-  { id: '4', service: 'Sulama Sistemi', provider: 'Zeytin Peyzaj', date: '28 Mayıs 2026', price: 1200, status: 'completed', label: 'Tamamlandı' },
-];
+interface Order {
+  id: string;
+  service: string;
+  provider: string;
+  date: string;
+  price: number;
+  status: string;
+  label: string;
+}
 
 const STATUS_COLORS: Record<string, string> = {
   'completed': 'bg-green-100 text-green-700 border-green-200',
@@ -21,11 +25,13 @@ const TABS = ['Tümü', 'Bekliyor', 'Devam Eden', 'Tamamlanan'];
 
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState('Tümü');
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  const filtered = activeTab === 'Tümü' ? ORDERS
-    : activeTab === 'Bekliyor' ? ORDERS.filter(o => o.status === 'pending')
-    : activeTab === 'Devam Eden' ? ORDERS.filter(o => o.status === 'in-progress')
-    : ORDERS.filter(o => o.status === 'completed');
+  useEffect(() => {
+    const statusMap: Record<string, string> = { 'Bekliyor': 'pending', 'Devam Eden': 'in-progress', 'Tamamlanan': 'completed' };
+    const status = statusMap[activeTab] || '';
+    api.get<{ orders: Order[] }>(`/api/orders?status=${status}`).then(res => setOrders(res.orders)).catch(() => setOrders([]));
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-[var(--theme-bg)]">
@@ -50,7 +56,7 @@ export default function OrdersPage() {
         </div>
 
         {/* List */}
-        {filtered.length === 0 ? (
+        {orders.length === 0 ? (
           <div className="nature-card p-10 text-center">
             <Package size={40} className="mx-auto mb-4 text-[var(--theme-text-muted)]" />
             <h3 className="font-bold text-[var(--theme-text)] mb-1">Sipariş bulunamadı</h3>
@@ -59,7 +65,7 @@ export default function OrdersPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered.map(order => (
+            {orders.map(order => (
               <Link key={order.id} href={`/order/${order.id}`}
                 className="nature-card p-4 block hover:shadow-md transition-all">
                 <div className="flex items-start justify-between mb-2">

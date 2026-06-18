@@ -1,8 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Compass, Star, MapPin } from 'lucide-react';
+import { api } from '@/lib/api-client';
+
+interface PlaceItem {
+  id: string;
+  name: string;
+  service: string;
+  rating: number;
+  price: number;
+  distance: number;
+}
 
 const CATEGORIES = [
   { label: 'Çim Bakımı', icon: '🌿' },
@@ -15,21 +25,18 @@ const CATEGORIES = [
   { label: 'Çiçek Dikimi', icon: '🌸' },
 ];
 
-const PLACES = [
-  { id: '1', name: 'Bahçe Sanatı', service: 'Çim Bakımı', rating: 4.2, reviews: 124, price: 350, distance: 2.3 },
-  { id: '2', name: 'Yeşil Dünya', service: 'Peyzaj Tasarım', rating: 5.0, reviews: 89, price: 750, distance: 5.1 },
-  { id: '3', name: 'Doğa Bahçe', service: 'Budama & Bakım', rating: 4.5, reviews: 56, price: 250, distance: 1.8 },
-  { id: '4', name: 'Zeytin Peyzaj', service: 'Sulama Sistemi', rating: 4.8, reviews: 210, price: 1200, distance: 3.5 },
-];
-
 export default function KesfetPage() {
   const [query, setQuery] = useState('');
   const [activeCat, setActiveCat] = useState('');
+  const [places, setPlaces] = useState<PlaceItem[]>([]);
 
-  const filtered = PLACES.filter(p =>
-    p.name.toLowerCase().includes(query.toLowerCase()) ||
-    p.service.toLowerCase().includes(query.toLowerCase())
-  );
+  useEffect(() => {
+    api.get<{ services: PlaceItem[] }>(`/api/services?search=${query}&category=${activeCat === 'Tümü' ? '' : activeCat}&limit=50`)
+      .then(r => setPlaces(r.services))
+      .catch(() => setPlaces([]));
+  }, [query, activeCat]);
+
+  const filtered = places;
 
   return (
     <div className="min-h-screen bg-[var(--theme-bg)]">

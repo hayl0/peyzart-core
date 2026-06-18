@@ -1,29 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Star, MapPin, Compass, TrendingUp, Sparkles } from 'lucide-react';
+import { api } from '@/lib/api-client';
 
-const CATEGORIES = ['Tümü', 'Çim Bakımı', 'Peyzaj Tasarım', 'Sulama', 'Budama', 'Çiçek Dikimi', 'İlaçlama'];
-
-const SERVICES = [
-  { id: '1', name: 'Bahçe Sanatı', service: 'Çim Bakımı', price: 350, rating: 4.2, reviews: 124, distance: 2.3, featured: true },
-  { id: '2', name: 'Yeşil Dünya', service: 'Peyzaj Tasarım', price: 750, rating: 5.0, reviews: 89, distance: 5.1, featured: true },
-  { id: '3', name: 'Doğa Bahçe', service: 'Budama & Bakım', price: 250, rating: 4.5, reviews: 56, distance: 1.8, featured: false },
-  { id: '4', name: 'Zeytin Peyzaj', service: 'Sulama Sistemi', price: 1200, rating: 4.8, reviews: 210, distance: 3.5, featured: true },
-  { id: '5', name: 'Çiçek Dünyası', service: 'Çiçek Dikimi', price: 180, rating: 4.3, reviews: 42, distance: 4.2, featured: false },
-  { id: '6', name: 'Yeşil Alan', service: 'Ağaç Budama', price: 500, rating: 4.6, reviews: 78, distance: 6.0, featured: false },
-];
+interface ServiceItem {
+  id: string;
+  name: string;
+  service: string;
+  price: number;
+  rating: number;
+  distance: number;
+  featured: boolean;
+}
 
 export default function MarketplacePage() {
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('Tümü');
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [categories, setCategories] = useState<string[]>(['Tümü']);
 
-  const filtered = SERVICES.filter(s => {
-    const matchSearch = s.name.toLowerCase().includes(query.toLowerCase()) || s.service.toLowerCase().includes(query.toLowerCase());
-    const matchCat = cat === 'Tümü' || s.service.includes(cat);
-    return matchSearch && matchCat;
-  });
+  useEffect(() => {
+    api.get<{ services: ServiceItem[]; categories?: string[] }>('/api/services?limit=50').then(r => {
+      setServices(r.services);
+      if (r.categories) setCategories(['Tümü', ...r.categories]);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!query && cat === 'Tümü') return;
+    const params = new URLSearchParams({ limit: '50' });
+    if (query) params.set('search', query);
+    if (cat !== 'Tümü') params.set('category', cat);
+    api.get<{ services: ServiceItem[] }>(`/api/services?${params}`).then(r => {
+      setServices(r.services);
+    });
+  }, [query, cat]);
+
+  const filtered = services;
 
   return (
     <div className="min-h-screen bg-[var(--theme-bg)]">
@@ -47,7 +62,7 @@ export default function MarketplacePage() {
       <div className="max-w-5xl mx-auto px-4 md:px-6 -mt-4 relative z-10 pb-24">
         {/* Categories */}
         <div className="flex gap-2 overflow-x-auto pb-1 mb-5">
-          {CATEGORIES.map(c => (
+          {categories.map(c => (
             <button key={c} onClick={() => setCat(c)}
               className={`px-4 py-2.5 rounded-[50px] text-xs font-semibold whitespace-nowrap border transition-all ${
                 cat === c
@@ -67,7 +82,7 @@ export default function MarketplacePage() {
               <h2 className="text-sm font-bold text-[var(--theme-text)]">Öne Çıkanlar</h2>
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2">
-              {SERVICES.filter(s => s.featured).map(s => (
+              {services.filter(s => s.featured).map(s => (
                 <Link key={s.id} href={`/service/${s.id}`}
                   className="nature-card p-4 min-w-[240px] block hover:shadow-md transition-all flex-shrink-0">
                   <div className="h-24 rounded-[14px] bg-gradient-to-br from-bright-green/30 to-lime/30 mb-3 flex items-center justify-center relative overflow-hidden">

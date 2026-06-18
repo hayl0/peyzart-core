@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Shield, LogOut } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Shield, LogOut, CheckCircle, XCircle, X } from 'lucide-react';
+import { api } from '@/lib/api-client';
 
 const TABS = ['Bilgiler', 'Adresler', 'Güvenlik'];
 
@@ -16,6 +17,51 @@ export default function ProfilePage() {
   const [name, setName] = useState('Ahmet Yılmaz');
   const [email] = useState('ahmet@example.com');
   const [phone, setPhone] = useState('+90 555 123 4567');
+  const [saving, setSaving] = useState(false);
+
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.patch('/api/landscaper/profile', { name, phone });
+      showToast('Profil güncellendi', 'success');
+      setEditing(false);
+    } catch {
+      showToast('Kaydedilemedi', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmNewPassword) {
+      showToast('Şifreler eşleşmiyor', 'error');
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await api.post('/api/landscaper/password', { oldPassword, newPassword });
+      showToast('Şifre güncellendi', 'success');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+    } catch {
+      showToast('Şifre değiştirilemedi', 'error');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[var(--theme-bg)]">
@@ -54,12 +100,17 @@ export default function ProfilePage() {
           <div className="nature-card p-5 space-y-4">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold text-sm text-[var(--theme-text)]">Kişisel Bilgiler</h3>
-              <button onClick={() => setEditing(!editing)}
-                className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
-                  editing ? 'bg-bright-green text-white border-bright-green' : 'text-[var(--theme-text-secondary)] border-[var(--theme-border)]'
-                }`}>
-                {editing ? 'Kaydet' : 'Düzenle'}
-              </button>
+              {!editing ? (
+                <button onClick={() => setEditing(true)}
+                  className="text-xs font-semibold px-4 py-2 rounded-full border text-[var(--theme-text-secondary)] border-[var(--theme-border)] transition-all">
+                  Düzenle
+                </button>
+              ) : (
+                <button onClick={handleSave} disabled={saving}
+                  className="text-xs font-semibold px-4 py-2 rounded-full border bg-bright-green text-white border-bright-green transition-all disabled:opacity-50">
+                  {saving ? 'Kaydediliyor...' : 'Kaydet'}
+                </button>
+              )}
             </div>
             <div className="space-y-3">
               <div className="relative">
@@ -109,13 +160,16 @@ export default function ProfilePage() {
             <div className="nature-card p-5">
               <h3 className="font-bold text-sm text-[var(--theme-text)] mb-4">Şifre Değiştir</h3>
               <div className="space-y-3">
-                <input type="password" placeholder="Mevcut şifre"
+                <input type="password" placeholder="Mevcut şifre" value={oldPassword} onChange={e => setOldPassword(e.target.value)}
                   className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
-                <input type="password" placeholder="Yeni şifre"
+                <input type="password" placeholder="Yeni şifre" value={newPassword} onChange={e => setNewPassword(e.target.value)}
                   className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
-                <input type="password" placeholder="Şifre tekrar"
+                <input type="password" placeholder="Şifre tekrar" value={confirmNewPassword} onChange={e => setConfirmNewPassword(e.target.value)}
                   className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
-                <button className="btn-primary w-full text-xs">Şifreyi Güncelle</button>
+                <button onClick={handlePasswordChange} disabled={changingPassword}
+                  className="btn-primary w-full text-xs disabled:opacity-50">
+                  {changingPassword ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
+                </button>
               </div>
             </div>
             <div className="nature-card p-5 border-red-200">
@@ -127,6 +181,19 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-[14px] border backdrop-blur-md transition-all duration-300 ${
+          toast.type === 'success'
+            ? 'bg-bright-green/10 border-bright-green/20 text-bright-green'
+            : 'bg-red-500/10 border-red-500/20 text-red-400'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle size={16} /> : <XCircle size={16} />}
+          <span className="text-xs font-semibold">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="opacity-50 hover:opacity-100"><X size={14} /></button>
+        </div>
+      )}
     </div>
   );
 }
