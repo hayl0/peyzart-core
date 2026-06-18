@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   LayoutDashboard, ClipboardList, Briefcase, DollarSign,
   Calendar, Images, Star, Settings, Bell
@@ -25,13 +25,6 @@ const MOBILE_NAV = [
 
 export default function LandscaperLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [fadeIn, setFadeIn] = useState(true);
-
-  useEffect(() => {
-    setFadeIn(false);
-    const t = setTimeout(() => setFadeIn(true), 10);
-    return () => clearTimeout(t);
-  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-[#0a2e1a]">
@@ -76,8 +69,18 @@ export default function LandscaperLayout({ children }: { children: React.ReactNo
         </aside>
 
         {/* Main Content */}
-        <main className={`flex-1 min-h-[calc(100vh-3.5rem)] px-4 md:px-6 py-6 md:py-8 pb-20 md:pb-8 transition-opacity duration-200 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
-          {children}
+        <main className="flex-1 min-h-[calc(100vh-3.5rem)] px-4 md:px-6 py-6 md:py-8 pb-20 md:pb-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 
@@ -89,7 +92,7 @@ export default function LandscaperLayout({ children }: { children: React.ReactNo
             return (
               <Link key={item.href} href={item.href}
                 className="flex-1 flex flex-col items-center py-2 text-[10px] font-semibold transition-colors gap-0.5 relative">
-                {isActive && <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-6 h-[3px] bg-bright-green rounded-full" />}
+                {isActive && <motion.div layoutId="landscaper-tab" className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-6 h-[3px] bg-bright-green rounded-full" transition={{ type: 'spring', stiffness: 500, damping: 35 }} />}
                 <item.icon size={18} className={isActive ? 'text-bright-green' : 'text-white/40'} />
                 <span className={isActive ? 'text-bright-green' : 'text-white/40'}>{item.label}</span>
               </Link>
