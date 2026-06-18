@@ -89,8 +89,9 @@ model LandscaperProfile {
   services      LandscaperService[]
   
   // Availability
-  isOpen        Boolean   @default(true)
-  workingHours  Json?
+  isOpen            Boolean   @default(true)
+  workingHours      Json?
+  notificationPrefs Json?
   
   orders        Order[]   @relation("LandscaperOrders")
   reviews       Review[]  @relation("LandscaperReviews")
@@ -146,6 +147,8 @@ model Review {
   id                String      @id @default(cuid())
   rating            Int         // 1 to 5
   comment           String?
+  reply             String?
+  repliedAt         DateTime?
   
   customerId        String
   customer          User        @relation("CustomerReviews", fields: [customerId], references: [id])

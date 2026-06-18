@@ -1,3 +1,4 @@
+import { prisma } from '@/lib/prisma';
 import { verifyAuth, errorResponse, successResponse } from '@/lib/api/auth';
 
 export const GET = async (request: Request) => {
@@ -5,26 +6,76 @@ export const GET = async (request: Request) => {
     const user = await verifyAuth(request);
     if (user.role !== 'LANDSCAPER') return errorResponse('Forbidden', 403);
 
+    const profile = await prisma.landscaperProfile.findUnique({
+      where: { userId: user.id },
+    });
+
+    if (!profile) return errorResponse('Landscaper profile not found', 404);
+
     const { searchParams } = new URL(request.url);
-    const period = searchParams.get('period') || 'monthly';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const [totalEarnings, currentPeriod, previousPeriod, monthlyData, transactions, totalTransactions] = await Promise.all([
+      prisma.order.aggregate({
+        where: { landscaperId: profile.id, status: 'COMPLETED' },
+        _sum: { totalPrice: true },
+      }),
+      prisma.order.aggregate({
+        where: { landscaperId: profile.id, status: 'COMPLETED', createdAt: { gte: startOfMonth } },
+        _sum: { totalPrice: true },
+      }),
+      prisma.order.aggregate({
+        where: { landscaperId: profile.id, status: 'COMPLETED', createdAt: { gte: startOfLastMonth, lt: startOfMonth } },
+        _sum: { totalPrice: true },
+      }),
+      prisma.order.groupBy({
+        by: ['createdAt'],
+        where: { landscaperId: profile.id, status: 'COMPLETED' },
+        _sum: { totalPrice: true },
+      }),
+      prisma.order.findMany({
+        where: { landscaperId: profile.id },
+        include: { customer: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.order.count({ where: { landscaperId: profile.id } }),
+    ]);
+
+    const currentVal = currentPeriod._sum?.totalPrice || 0;
+    const previousVal = previousPeriod._sum?.totalPrice || 0;
+    const growth = previousVal > 0 ? Math.round(((currentVal - previousVal) / previousVal) * 100) : 0;
+
+    const monthNames = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+    const chart = monthNames.map((month, i) => {
+      const monthTotal = monthlyData
+        .filter(o => o.createdAt.getMonth() === i)
+        .reduce((sum, o) => sum + (o._sum?.totalPrice || 0), 0);
+      return { month, value: monthTotal };
+    });
+
+    const txList = transactions.map(tx => ({
+      id: tx.id,
+      date: tx.createdAt.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' }),
+      customer: tx.customer?.name || 'Bilinmeyen',
+      service: tx.serviceName,
+      amount: tx.totalPrice,
+      status: tx.status.toLowerCase(),
+    }));
+
+    const totalPages = Math.ceil(totalTransactions / limit);
+
     return successResponse({
-      summary: { total: 45230, currentPeriod: 12450, previousPeriod: 10200, growth: 18 },
-      chart: [
-        { month: 'Oca', value: 5200 }, { month: 'Şub', value: 6800 },
-        { month: 'Mar', value: 4100 }, { month: 'Nis', value: 8900 },
-        { month: 'May', value: 11200 }, { month: 'Haz', value: 12450 },
-      ],
-      transactions: [
-        { id: 1, date: '15 Haz 2026', customer: 'Ahmet Yılmaz', service: 'Çim Biçme', amount: 350, status: 'completed' },
-        { id: 2, date: '14 Haz 2026', customer: 'Zeynep Kaya', service: 'Bitki Dikimi', amount: 450, status: 'completed' },
-        { id: 3, date: '12 Haz 2026', customer: 'Can Demir', service: 'Sulama Sistemi', amount: 1200, status: 'completed' },
-        { id: 4, date: '10 Haz 2026', customer: 'Mehmet Şahin', service: 'Çim Biçme', amount: 350, status: 'pending' },
-        { id: 5, date: '8 Haz 2026', customer: 'Elif Demirtaş', service: 'Peyzaj Tasarım', amount: 750, status: 'completed' },
-      ],
-      pagination: { page, totalPages: 1, total: 5 },
+      summary: { total: totalEarnings._sum?.totalPrice || 0, currentPeriod: currentVal, previousPeriod: previousVal, growth },
+      chart,
+      transactions: txList,
+      pagination: { page, totalPages, total: totalTransactions },
     });
   } catch (e: any) {
     return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
