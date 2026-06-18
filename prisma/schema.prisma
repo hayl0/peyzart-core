@@ -98,6 +98,9 @@ model LandscaperProfile {
 model PortfolioImage {
   id                  String            @id @default(cuid())
   url                 String
+  category            String            @default("Diğer")
+  description         String?
+  createdAt           DateTime          @default(now())
   landscaperProfileId String
   landscaperProfile   LandscaperProfile @relation(fields: [landscaperProfileId], references: [id], onDelete: Cascade)
 }
