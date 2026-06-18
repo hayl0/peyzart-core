@@ -1,4 +1,4 @@
-import { adminAuth } from '@/lib/firebase/admin';
+import { getAdminAuth } from '@/lib/firebase/admin';
 import { prisma } from '@/lib/prisma';
 
 export interface AuthenticatedUser {
@@ -15,6 +15,7 @@ export async function verifyAuth(request: Request): Promise<AuthenticatedUser> {
   }
 
   const token = authHeader.slice(7);
+  const adminAuth = await getAdminAuth();
   if (!adminAuth) {
     console.warn('Firebase Admin not configured — auth bypassed for development');
     return { id: 'dev-user', email: 'dev@peyzart.com', name: 'Dev User', role: 'LANDSCAPER' as const };
