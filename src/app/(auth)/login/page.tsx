@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +15,6 @@ export default function LoginPage() {
   const [role, setRole] = useState<'customer' | 'landscaper'>('customer');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -132,41 +133,25 @@ export default function LoginPage() {
                 Şifremi Unuttum?
               </Link>
             </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                disabled={isLoading}
-                className="w-full bg-white border border-nature-input-border rounded-[14px] pl-11 pr-11 py-3.5 text-sm text-[#333] outline-none focus:border-bright-green/40 focus:ring-2 focus:ring-bright-green/10 transition-all disabled:opacity-50"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#bbb] hover:text-[#666]"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
+            <PasswordInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              disabled={isLoading}
+              className="bg-white border border-nature-input-border text-[#333] placeholder:text-[#bbb]"
+            />
           </div>
 
-          <button
+          <Button
             type="submit"
+            loading={isLoading}
+            fullWidth
+            size="md"
             disabled={isLoading}
-            className="btn-secondary w-full flex items-center justify-center gap-2 disabled:opacity-60"
           >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Giriş yapılıyor...
-              </>
-            ) : (
-              'Giriş Yap'
-            )}
-          </button>
+            {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+          </Button>
         </form>
 
         {/* Divider */}
