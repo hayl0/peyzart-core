@@ -90,9 +90,11 @@ model LandscaperProfile {
   
   // Availability
   isOpen        Boolean   @default(true)
+  workingHours  Json?
   
   orders        Order[]   @relation("LandscaperOrders")
   reviews       Review[]  @relation("LandscaperReviews")
+  blockedDates  BlockedDate[]
 }
 
 model PortfolioImage {
@@ -152,6 +154,15 @@ model Review {
   landscaper        LandscaperProfile @relation("LandscaperReviews", fields: [landscaperId], references: [id])
 
   createdAt         DateTime    @default(now())
+}
+
+model BlockedDate {
+  id                  String            @id @default(cuid())
+  date                DateTime
+  reason              String?
+  createdAt           DateTime          @default(now())
+  landscaperProfileId String
+  landscaperProfile   LandscaperProfile @relation(fields: [landscaperProfileId], references: [id], onDelete: Cascade)
 }
 
 model Payment {
