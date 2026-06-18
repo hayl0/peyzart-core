@@ -82,7 +82,7 @@ export default function RegisterPage() {
   const score = passwordStrength();
 
   return (
-    <div className="min-h-screen bg-nature-bg flex items-center justify-center p-6">
+    <div className="min-h-screen bg-nature-bg flex items-center justify-center p-4 md:p-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -90,7 +90,7 @@ export default function RegisterPage() {
       >
         {/* Logo */}
         <div className="text-center mb-6">
-          <div className="logo-gradient text-[38px]">Peyzart</div>
+          <div className="logo-gradient text-[36px] md:text-[46px]">Peyzart</div>
           <p className="text-[#888] text-sm mt-2">Hesap oluştur ve başla ✨</p>
         </div>
 
@@ -98,7 +98,7 @@ export default function RegisterPage() {
         <div className="flex bg-nature-bg rounded-[12px] p-1 mb-6">
           <button
             onClick={() => setRole('customer')}
-            className={`flex-1 text-center py-2.5 text-sm font-semibold rounded-[10px] transition-all ${
+            className={`flex-1 text-center py-3 text-sm font-semibold rounded-[10px] transition-all ${
               role === 'customer'
                 ? 'bg-white text-peyzart-green shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
                 : 'text-[#999] hover:text-[#666]'

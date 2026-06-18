@@ -1,289 +1,178 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import {
-  AlertCircle,
-  ArrowLeft,
-  Calendar,
-  CheckCircle2,
-  ChevronRight,
-  CreditCard,
-  Lock,
-  MapPin,
-  ShieldCheck,
-  Sprout,
-  Star,
-} from 'lucide-react';
-import Link from 'next/link';
 import { useState } from 'react';
-import LiquidButton from '@/components/ui/LiquidButton';
+import Link from 'next/link';
+import { CreditCard, Wallet, ShieldCheck, Check, ChevronLeft, Sprout, MapPin, Calendar, Lock } from 'lucide-react';
 
-export default function CheckoutPage() {
-  const [paymentMethod, setActiveMethod] = useState('card');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+export default function OdemePage() {
+  const [method, setMethod] = useState('card');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const handlePayment = () => {
-    setIsProcessing(true);
-    // Simulate API call to Iyzico/Stripe
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsSuccess(true);
-    }, 3000);
+  const handlePay = () => {
+    setLoading(true);
+    setLoading(false); setSuccess(true);
   };
 
-  if (isSuccess) {
+  if (success) {
     return (
-      <div className="min-h-screen bg-nature-mesh flex items-center justify-center p-6 font-sans">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-white/40 backdrop-blur-3xl p-12 rounded-[3rem] border border-white text-center space-y-8 shadow-2xl"
-        >
-          <div className="inline-flex p-6 bg-primary/20 rounded-full">
-            <CheckCircle2 className="w-16 h-16 text-primary" />
+      <div className="min-h-screen bg-[var(--theme-bg)] flex items-center justify-center p-6">
+        <div className="text-center max-w-sm">
+          <div className="w-20 h-20 bg-bright-green rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-bright-green/20">
+            <Check size={36} className="text-white" />
           </div>
-          <div className="space-y-4">
-            <h1 className="text-3xl font-black text-primary-dark uppercase italic tracking-tighter">
-              Ödeme Başarılı!
-            </h1>
-            <p className="text-primary-dark/60 font-bold leading-relaxed">
-              Bahçeniz için ilk adım atıldı. Peyzajcınız talebinizi onayladığında size haber
-              vereceğiz.
-            </p>
+          <h1 className="text-2xl font-bold text-[var(--theme-text)] mb-2">Ödeme Başarılı!</h1>
+          <p className="text-sm text-[var(--theme-text-secondary)] mb-8">Peyzajcınız talebinizi onayladığında size haber vereceğiz.</p>
+          <div className="flex flex-col gap-3">
+            <Link href="/orders" className="btn-primary text-sm text-center">Siparişlerim</Link>
+            <Link href="/home" className="text-sm font-semibold text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)] transition-colors">Ana Sayfa</Link>
           </div>
-          <Link
-            href="/siparis-takip"
-            className="block w-full py-5 bg-primary text-white rounded-2xl font-black shadow-xl shadow-primary/30 uppercase italic tracking-widest hover:scale-105 transition-transform"
-          >
-            Siparişi Takip Et
-          </Link>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 via-green-100 to-green-200 p-8">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-5xl font-extrabold text-green-900">Payment</h1>
-      </header>
+    <div className="min-h-screen bg-[var(--theme-bg)]">
+      <div className="max-w-4xl mx-auto p-4 md:p-6 pb-24">
+        {/* Back */}
+        <Link href="/booking" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)] transition-colors mb-6">
+          <ChevronLeft size={18} />
+          Geri
+        </Link>
 
-      <section className="text-center mb-12">
-        <h2 className="text-4xl font-bold text-green-800 mb-6">Secure and Easy Payment</h2>
-        <p className="text-lg text-gray-700 mb-8">
-          Complete your payment securely and start your landscaping journey.
-        </p>
-        <LiquidButton
-          label="Proceed to Payment"
-          onClick={() => alert('Proceeding to Payment!')}
-          variant="primary"
-        />
-      </section>
-
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12">
-        {/* Left: Payment Form */}
-        <div className="flex-1 space-y-10">
-          <div className="space-y-4">
-            <Link
-              href="/kesfet"
-              className="inline-flex items-center gap-2 text-primary-dark/40 hover:text-primary font-black uppercase text-[10px] tracking-widest transition-colors mb-4"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Geri Dön
-            </Link>
-            <h1 className="text-5xl font-black text-primary-dark tracking-tighter uppercase italic">
-              Güvenli Ödeme
-            </h1>
-            <div className="flex items-center gap-3 bg-primary/5 px-4 py-2 rounded-full border border-primary/10 w-fit">
-              <ShieldCheck className="w-4 h-4 text-primary" />
-              <span className="text-[10px] font-black text-primary uppercase tracking-widest">
-                256-Bit SSL Sertifikalı Koruma
-              </span>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Payment Form */}
+          <div className="lg:col-span-3 space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold text-[var(--theme-text)]">Güvenli Ödeme</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <ShieldCheck size={14} className="text-bright-green" />
+                <span className="text-xs text-[var(--theme-text-muted)]">256-bit SSL ile korunuyor</span>
+              </div>
             </div>
-          </div>
 
-          {/* Payment Method Selector */}
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={() => setActiveMethod('card')}
-              className={`p-6 rounded-[2rem] border transition-all flex flex-col gap-4 text-left ${paymentMethod === 'card' ? 'bg-primary border-primary shadow-xl shadow-primary/20 text-white' : 'bg-white/60 border-white hover:border-primary/20 text-primary-dark'}`}
-            >
-              <CreditCard className="w-8 h-8" />
-              <div>
-                <p className="text-xs font-black uppercase tracking-widest opacity-60">Seçenek 1</p>
-                <p className="text-base font-black">Kredi / Banka Kartı</p>
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveMethod('wallet')}
-              className={`p-6 rounded-[2rem] border transition-all flex flex-col gap-4 text-left ${paymentMethod === 'wallet' ? 'bg-primary border-primary shadow-xl shadow-primary/20 text-white' : 'bg-white/60 border-white hover:border-primary/20 text-primary-dark'}`}
-            >
-              <div className="w-8 h-8 flex items-center justify-center font-black italic text-xl">
-                P
-              </div>
-              <div>
-                <p className="text-xs font-black uppercase tracking-widest opacity-60">Seçenek 2</p>
-                <p className="text-base font-black">Peyzart Cüzdan</p>
-              </div>
-            </button>
-          </div>
+            {/* Method Selector */}
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setMethod('card')}
+                className={`p-4 rounded-[20px] border-2 text-left transition-all ${
+                  method === 'card'
+                    ? 'border-bright-green bg-bright-green/5'
+                    : 'border-[var(--theme-border)] bg-[var(--theme-card)] hover:border-bright-green/30'
+                }`}>
+                <CreditCard size={22} className={`mb-2 ${method === 'card' ? 'text-bright-green' : 'text-[var(--theme-text-muted)]'}`} />
+                <p className="text-xs font-semibold text-[var(--theme-text-muted)]">Seçenek 1</p>
+                <p className="text-sm font-bold text-[var(--theme-text)]">Kredi Kartı</p>
+              </button>
+              <button onClick={() => setMethod('wallet')}
+                className={`p-4 rounded-[20px] border-2 text-left transition-all ${
+                  method === 'wallet'
+                    ? 'border-bright-green bg-bright-green/5'
+                    : 'border-[var(--theme-border)] bg-[var(--theme-card)] hover:border-bright-green/30'
+                }`}>
+                <Wallet size={22} className={`mb-2 ${method === 'wallet' ? 'text-bright-green' : 'text-[var(--theme-text-muted)]'}`} />
+                <p className="text-xs font-semibold text-[var(--theme-text-muted)]">Seçenek 2</p>
+                <p className="text-sm font-bold text-[var(--theme-text)]">Peyzart Cüzdan</p>
+              </button>
+            </div>
 
-          {/* Card Details Form */}
-          <div className="bg-white/60 backdrop-blur-3xl p-10 rounded-[3rem] border border-white shadow-2xl shadow-primary/5 space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-primary-dark/40 uppercase tracking-[0.2em] ml-2">
-                  Kart Üzerindeki İsim
-                </label>
-                <input
-                  className="w-full p-5 bg-white border border-primary/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 outline-none transition-all"
-                  placeholder="AD SOYAD"
-                />
-              </div>
-              <div className="space-y-2 relative">
-                <label className="text-[10px] font-black text-primary-dark/40 uppercase tracking-[0.2em] ml-2">
-                  Kart Numarası
-                </label>
-                <input
-                  className="w-full p-5 bg-white border border-primary/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 outline-none transition-all"
-                  placeholder="0000 0000 0000 0000"
-                />
-                <div className="absolute right-5 bottom-5 flex gap-2">
-                  <div className="w-8 h-5 bg-gray-100 rounded" />
-                  <div className="w-8 h-5 bg-gray-100 rounded" />
+            {/* Card Form */}
+            {method === 'card' && (
+              <div className="nature-card p-5 space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-[var(--theme-text)] mb-1.5 block ml-1">Kart Üzerindeki İsim</label>
+                  <input type="text" placeholder="AD SOYAD"
+                    className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-primary-dark/40 uppercase tracking-[0.2em] ml-2">
-                    Son Kullanma
-                  </label>
-                  <input
-                    className="w-full p-5 bg-white border border-primary/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 outline-none transition-all"
-                    placeholder="AA / YY"
-                  />
+                <div>
+                  <label className="text-xs font-semibold text-[var(--theme-text)] mb-1.5 block ml-1">Kart Numarası</label>
+                  <input type="text" placeholder="0000 0000 0000 0000"
+                    className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] font-mono tracking-wider outline-none focus:border-bright-green/40 transition-all" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-primary-dark/40 uppercase tracking-[0.2em] ml-2">
-                    CVC / CVV
-                  </label>
-                  <div className="relative">
-                    <input
-                      className="w-full p-5 bg-white border border-primary/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 outline-none transition-all"
-                      placeholder="000"
-                    />
-                    <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-dark/20" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--theme-text)] mb-1.5 block ml-1">SKT (AA/YY)</label>
+                    <input type="text" placeholder="AA/YY"
+                      className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--theme-text)] mb-1.5 block ml-1">CVC</label>
+                    <div className="relative">
+                      <input type="text" placeholder="***"
+                        className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
+                      <Lock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]" />
+                    </div>
                   </div>
                 </div>
+                <div className="bg-yellow-50 border border-yellow-100 rounded-[14px] p-3 flex items-start gap-2">
+                  <ShieldCheck size={16} className="text-yellow-600 mt-0.5 shrink-0" />
+                  <p className="text-[11px] text-yellow-700 leading-tight">Kart bilgileriniz sistemde saklanmaz. Ödeme Iyzico güvencesiyle 3D Secure ile gerçekleşir.</p>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="flex items-center gap-4 p-4 bg-yellow-50 border border-yellow-100 rounded-2xl">
-              <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0" />
-              <p className="text-[10px] font-bold text-yellow-700 leading-tight">
-                Kart bilgileriniz sistemlerimizde asla saklanmaz. Ödemeniz Iyzico güvencesiyle 3D
-                Secure katmanında gerçekleşir.
-              </p>
-            </div>
-
-            <button
-              onClick={handlePayment}
-              disabled={isProcessing}
-              className="w-full py-6 bg-primary text-white rounded-[2rem] font-black shadow-2xl shadow-primary/40 flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-            >
-              {isProcessing ? (
-                <>
-                  <div className="w-5 h-5 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-                  İŞLENİYOR...
-                </>
+            {/* Pay Button */}
+            <button onClick={handlePay} disabled={loading}
+              className="btn-primary w-full flex items-center justify-center gap-2 text-sm">
+              {loading ? (
+                <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> İşleniyor...</>
               ) : (
-                <>
-                  ÖDEMEYİ TAMAMLA (₺450.00)
-                  <ChevronRight className="w-5 h-5" />
-                </>
+                <>Ödemeyi Tamamla (₺450)</>
               )}
             </button>
           </div>
-        </div>
 
-        {/* Right: Order Summary */}
-        <div className="w-full lg:w-[400px] space-y-8">
-          <div className="sticky top-12 space-y-8">
-            <div className="p-10 bg-white/60 backdrop-blur-3xl rounded-[3rem] border border-white shadow-2xl shadow-primary/5 space-y-8">
-              <h3 className="text-xl font-black text-primary-dark uppercase italic tracking-tighter border-b border-primary/5 pb-6">
-                Sipariş Özeti
-              </h3>
-
-              {/* Landscaper Preview */}
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 overflow-hidden shadow-inner">
-                  <img
-                    src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=200&auto=format&fit=crop"
-                    className="w-full h-full object-cover"
-                  />
+          {/* Order Summary */}
+          <div className="lg:col-span-2">
+            <div className="nature-card p-5 space-y-4 sticky top-6">
+              <h3 className="font-bold text-sm text-[var(--theme-text)] border-b border-[var(--theme-border)] pb-3">Sipariş Özeti</h3>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-[14px] overflow-hidden bg-[var(--theme-border)] shrink-0">
+                  <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&q=80" className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <p className="text-base font-black text-primary-dark">Bahçe Sanatı Peyzaj</p>
-                  <div className="flex items-center text-yellow-500">
-                    <Star className="w-3 h-3 fill-current" />
-                    <span className="text-[10px] font-black ml-1">4.8 // 124 Yorum</span>
-                  </div>
+                  <p className="text-sm font-bold text-[var(--theme-text)]">Bahçe Sanatı</p>
+                  <p className="text-xs text-[var(--theme-text-muted)]">⭐ 4.8 (124 yorum)</p>
                 </div>
               </div>
 
-              {/* Service Details */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 text-primary-dark/60">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    <Sprout className="w-4 h-4" />
-                  </div>
-                  <p className="text-xs font-bold uppercase tracking-widest">Çim Biçme & Budama</p>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-3 text-[var(--theme-text-secondary)]">
+                  <Sprout size={16} className="text-bright-green" />
+                  <span>Çim Biçme & Budama</span>
                 </div>
-                <div className="flex items-center gap-4 text-primary-dark/60">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <p className="text-xs font-bold uppercase tracking-widest">
-                    Zekeriyaköy, Villa Cad.
-                  </p>
+                <div className="flex items-center gap-3 text-[var(--theme-text-secondary)]">
+                  <MapPin size={16} className="text-bright-green" />
+                  <span>Zekeriyaköy, Villa Cad.</span>
                 </div>
-                <div className="flex items-center gap-4 text-primary-dark/60">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    <Calendar className="w-4 h-4" />
-                  </div>
-                  <p className="text-xs font-bold uppercase tracking-widest">12 Nisan // 14:00</p>
+                <div className="flex items-center gap-3 text-[var(--theme-text-secondary)]">
+                  <Calendar size={16} className="text-bright-green" />
+                  <span>12 Nisan · 14:00</span>
                 </div>
               </div>
 
-              {/* Totals */}
-              <div className="space-y-3 pt-8 border-t border-primary/5">
-                <div className="flex justify-between items-center text-sm font-bold text-primary-dark/40 uppercase">
-                  <span>Hizmet Bedeli</span>
-                  <span>₺420.00</span>
+              <div className="space-y-2 pt-3 border-t border-[var(--theme-border)]">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--theme-text-secondary)]">Hizmet Bedeli</span>
+                  <span className="text-[var(--theme-text)] font-semibold">₺420</span>
                 </div>
-                <div className="flex justify-between items-center text-sm font-bold text-primary-dark/40 uppercase">
-                  <span>İşlem Ücreti</span>
-                  <span>₺30.00</span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--theme-text-secondary)]">İşlem Ücreti</span>
+                  <span className="text-[var(--theme-text)] font-semibold">₺30</span>
                 </div>
-                <div className="flex justify-between items-center pt-4">
-                  <span className="text-lg font-black text-primary-dark uppercase italic">
-                    Toplam
-                  </span>
-                  <span className="text-3xl font-black text-primary">₺450.00</span>
+                <div className="flex justify-between pt-2 border-t border-[var(--theme-border)]">
+                  <span className="font-bold text-[var(--theme-text)]">Toplam</span>
+                  <span className="font-extrabold text-xl text-bright-green">₺450</span>
                 </div>
               </div>
-            </div>
 
-            {/* Discount Code */}
-            <div className="p-6 bg-white/40 rounded-3xl border border-white flex gap-3">
-              <input
-                className="flex-1 bg-transparent border-0 focus:ring-0 text-sm font-bold placeholder:text-primary-dark/20"
-                placeholder="İNDİRİM KODU"
-              />
-              <button className="px-6 py-2 bg-primary-dark text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">
-                UYGULA
-              </button>
+              {/* Discount */}
+              <div className="flex gap-2">
+                <input type="text" placeholder="İndirim Kodu"
+                    className="flex-1 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[12px] px-3.5 py-3 text-xs text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
+                <button className="px-4 py-2.5 bg-[var(--theme-text)] text-[var(--theme-card)] rounded-[12px] text-xs font-bold hover:opacity-90 transition-opacity">Uygula</button>
+              </div>
             </div>
           </div>
         </div>

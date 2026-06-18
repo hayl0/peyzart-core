@@ -1,132 +1,93 @@
 'use client';
 
-import { useJsApiLoader } from '@react-google-maps/api';
-import { gsap } from 'gsap';
-import { useEffect, useState } from 'react';
-import SearchBar from '@/components/ui/SearchBar';
+import { useState } from 'react';
+import Link from 'next/link';
+import { Search, Compass, Star, MapPin } from 'lucide-react';
 
-// Mock Data (Real data will come from Firestore/Prisma)
-const MOCK_LANDSCAPERS = [
-  {
-    id: '1',
-    name: 'Bahçe Sanatı Peyzaj',
-    rating: 4.8,
-    reviews: 124,
-    price: 350,
-    position: { lat: 41.0082, lng: 28.9784 },
-    services: ['Çim Biçme', 'Budama'],
-    image:
-      'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=400&auto=format&fit=crop',
-  },
-  {
-    id: '2',
-    name: 'Yeşil Dünya Uzmanları',
-    rating: 4.5,
-    reviews: 89,
-    price: 500,
-    position: { lat: 41.0122, lng: 28.9654 },
-    services: ['Tasarım', 'Sulama Sistemi'],
-    image:
-      'https://images.unsplash.com/photo-1598902108854-10e335adac99?q=80&w=400&auto=format&fit=crop',
-  },
-  {
-    id: '3',
-    name: 'Zeytin Bahçe Bakım',
-    rating: 4.9,
-    reviews: 210,
-    price: 400,
-    position: { lat: 41.0052, lng: 28.9884 },
-    services: ['Budama', 'İlaçlama'],
-    image:
-      'https://images.unsplash.com/photo-1592150621744-aca64f48394a?q=80&w=400&auto=format&fit=crop',
-  },
+const CATEGORIES = [
+  { label: 'Çim Bakımı', icon: '🌿' },
+  { label: 'Peyzaj Tasarım', icon: '🎨' },
+  { label: 'Sulama', icon: '💧' },
+  { label: 'Ağaç Budama', icon: '🌳' },
+  { label: 'Çit & Duvar', icon: '🪴' },
+  { label: 'Bahçe Temizlik', icon: '🧹' },
+  { label: 'İlaçlama', icon: '🧪' },
+  { label: 'Çiçek Dikimi', icon: '🌸' },
 ];
 
-const containerStyle = { width: '100%', height: '100%' };
-const center = { lat: 41.0082, lng: 28.9784 }; // İstanbul Center
+const PLACES = [
+  { id: '1', name: 'Bahçe Sanatı', service: 'Çim Bakımı', rating: 4.2, reviews: 124, price: 350, distance: 2.3 },
+  { id: '2', name: 'Yeşil Dünya', service: 'Peyzaj Tasarım', rating: 5.0, reviews: 89, price: 750, distance: 5.1 },
+  { id: '3', name: 'Doğa Bahçe', service: 'Budama & Bakım', rating: 4.5, reviews: 56, price: 250, distance: 1.8 },
+  { id: '4', name: 'Zeytin Peyzaj', service: 'Sulama Sistemi', rating: 4.8, reviews: 210, price: 1200, distance: 3.5 },
+];
 
-export default function DiscoverPage() {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-  });
+export default function KesfetPage() {
+  const [query, setQuery] = useState('');
+  const [activeCat, setActiveCat] = useState('');
 
-  const [selected, setSelected] = useState<any>(null);
-  const [showPanel, setShowPanel] = useState(false);
-
-  useEffect(() => {
-    if (selected) {
-      setShowPanel(true);
-      gsap.fromTo(
-        '.side-panel',
-        { x: 400, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }
-      );
-    }
-  }, [selected]);
+  const filtered = PLACES.filter(p =>
+    p.name.toLowerCase().includes(query.toLowerCase()) ||
+    p.service.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 via-green-100 to-green-200 p-8">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-5xl font-extrabold text-green-900">Discover</h1>
-      </header>
-
-      <section className="text-center mb-12">
-        <h2 className="text-4xl font-bold text-green-800 mb-6">
-          Explore Landscaping Services Near You
-        </h2>
-        <p className="text-lg text-gray-700 mb-8">
-          Find the best landscapers and services in your area.
-        </p>
-        <SearchBar
-          placeholder="Search for landscapers or services..."
-          onSearch={(query: string) => alert(`Searching for ${query}`)}
-        />
-      </section>
-
-      <section className="mt-12">
-        <h2 className="text-3xl font-semibold text-green-700 mb-6">Top Landscapers</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Placeholder for landscaper cards */}
-          <div className="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-            <h3 className="text-2xl font-bold text-green-800 mb-4">Landscaper Name</h3>
-            <p className="text-gray-600">Description of the landscaper's services.</p>
-          </div>
+    <div className="min-h-screen bg-[var(--theme-bg)]">
+      <div className="max-w-2xl mx-auto p-4 md:p-6 pb-24">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <Compass size={22} className="text-bright-green" />
+          <h1 className="text-2xl font-bold text-[var(--theme-text)]">Keşfet</h1>
         </div>
-      </section>
 
-      <footer className="mt-16 text-center text-gray-600">
-        <p>&copy; 2026 Peyzart. All rights reserved.</p>
-      </footer>
+        {/* Search */}
+        <div className="relative mb-5">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]" />
+          <input type="text" value={query} onChange={e => setQuery(e.target.value)} placeholder="Peyzajcı veya hizmet ara..."
+            className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] pl-10 pr-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
+        </div>
+
+        {/* Categories */}
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-5">
+          {CATEGORIES.map(cat => (
+            <button key={cat.label} onClick={() => setActiveCat(activeCat === cat.label ? '' : cat.label)}
+              className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-[50px] text-xs font-semibold whitespace-nowrap transition-all border ${
+                activeCat === cat.label
+                  ? 'bg-bright-green text-white border-bright-green'
+                  : 'bg-[var(--theme-card)] text-[var(--theme-text-secondary)] border-[var(--theme-border)] hover:border-bright-green/40'
+              }`}>
+              <span>{cat.icon}</span>
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Results */}
+        <div className="space-y-3">
+          {filtered.length === 0 ? (
+            <div className="nature-card p-10 text-center">
+              <Compass size={40} className="mx-auto mb-3 text-[var(--theme-text-muted)]" />
+              <p className="text-sm text-[var(--theme-text-secondary)]">Sonuç bulunamadı</p>
+            </div>
+          ) : filtered.map(p => (
+            <Link key={p.id} href={`/service/${p.id}`}
+              className="nature-card p-4 flex items-center gap-4 block hover:shadow-md transition-all">
+              <div className="w-14 h-14 rounded-[16px] bg-gradient-to-br from-bright-green to-lime flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                {p.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-sm text-[var(--theme-text)] truncate">{p.name}</h3>
+                <p className="text-xs text-[var(--theme-text-secondary)]">{p.service}</p>
+                <div className="flex items-center gap-3 mt-1 text-xs text-[var(--theme-text-muted)]">
+                  <span className="flex items-center gap-0.5"><Star size={11} className="text-yellow-500 fill-yellow-500" /> {p.rating}</span>
+                  <span className="flex items-center gap-0.5"><MapPin size={11} /> {p.distance} km</span>
+                </div>
+              </div>
+              <span className="font-extrabold text-sm text-[var(--theme-text)]">₺{p.price}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
-
-// Minimal Modern Green Map Styles
-const mapStyles = [
-  {
-    featureType: 'water',
-    elementType: 'geometry',
-    stylers: [{ color: '#e9e9e9' }, { lightness: 17 }],
-  },
-  {
-    featureType: 'landscape',
-    elementType: 'geometry',
-    stylers: [{ color: '#f5f5f5' }, { lightness: 20 }],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'geometry.fill',
-    stylers: [{ color: '#ffffff' }, { lightness: 17 }],
-  },
-  {
-    featureType: 'poi',
-    elementType: 'geometry',
-    stylers: [{ color: '#f5f5f5' }, { lightness: 21 }],
-  },
-  {
-    featureType: 'poi.park',
-    elementType: 'geometry',
-    stylers: [{ color: '#E8F5E9' }, { lightness: 21 }],
-  },
-];

@@ -1,250 +1,131 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { LiquidButtonRed, LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
+import { User, Mail, Phone, MapPin, Shield, LogOut } from 'lucide-react';
 
-export default function CustomerProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
-    name: 'Ahmet Yılmaz',
-    email: 'ahmet@example.com',
-    phone: '+90 555 123 4567',
-    address: 'Gümüşsuyu Mah. Çevre Yolu No:45',
-    city: 'İstanbul',
-    savedAddresses: [
-      { id: 1, type: 'Ev', address: 'Gümüşsuyu Mah. ...', default: true },
-      { id: 2, type: 'İş', address: 'Ataköy Mah. ...', default: false },
-    ],
-  });
+const TABS = ['Bilgiler', 'Adresler', 'Güvenlik'];
 
-  const [passwords, setPasswords] = useState({
-    current: '',
-    new: '',
-    confirm: '',
-  });
+const SAVED_ADDRESSES = [
+  { id: 1, type: 'Ev', address: 'Gümüşsuyu Mah. Çevre Yolu No:45, İstanbul', default: true },
+  { id: 2, type: 'İş', address: 'Ataköy Mah. Londra Asfaltı No:12, İstanbul', default: false },
+];
+
+export default function ProfilePage() {
+  const [activeTab, setActiveTab] = useState('Bilgiler');
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState('Ahmet Yılmaz');
+  const [email] = useState('ahmet@example.com');
+  const [phone, setPhone] = useState('+90 555 123 4567');
 
   return (
-    <div className="max-w-4xl mx-auto px-6 pb-20">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <h1 className="text-4xl font-black text-white mb-2">
-          <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Profil
-          </span>
-        </h1>
-      </motion.div>
+    <div className="min-h-screen bg-[var(--theme-bg)]">
+      <div className="max-w-2xl mx-auto p-4 md:p-6 pb-24">
+        <h1 className="text-2xl font-bold text-[var(--theme-text)] mb-6">Profilim</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Profile Sidebar */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-1"
-        >
-          <div className="liquid-glass-card p-8 text-center sticky top-24 space-y-6">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-4xl mx-auto">
-              👤
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-1">{profile.name}</h2>
-              <p className="text-white/60 text-sm">{profile.email}</p>
-              <p className="text-white/60 text-sm">{profile.phone}</p>
-            </div>
-            <div className="pt-6 border-t border-white/10 space-y-2 text-sm">
-              <p className="text-white/60">⭐ Toplam Puanladığim: <span className="text-white font-semibold">4.6</span></p>
-              <p className="text-white/60">📋 Toplam Sipariş: <span className="text-white font-semibold">12</span></p>
-            </div>
+        {/* Profile Card */}
+        <div className="nature-card p-6 text-center mb-6">
+          <div className="w-20 h-20 rounded-full bg-bright-green/20 flex items-center justify-center mx-auto mb-4">
+            <User size={32} className="text-bright-green" />
           </div>
-        </motion.div>
+          <h2 className="text-lg font-bold text-[var(--theme-text)]">{name}</h2>
+          <p className="text-sm text-[var(--theme-text-secondary)]">{email}</p>
+          <div className="flex justify-center gap-6 mt-4 text-sm">
+            <span className="text-[var(--theme-text-muted)]">⭐ 4.6 <span className="text-[var(--theme-text-secondary)]">puan</span></span>
+            <span className="text-[var(--theme-text-muted)]">📋 12 <span className="text-[var(--theme-text-secondary)]">sipariş</span></span>
+          </div>
+        </div>
 
-        {/* Main Content */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-2 space-y-6"
-        >
-          {/* Tabs */}
-          <div className="flex gap-3 pb-4 border-b border-white/10 overflow-x-auto">
-            {['Bilgiler', 'Adresler', 'Güvenlik', 'Tercihler'].map((tab) => (
-              <button
-                key={tab}
-                className="px-4 py-2 whitespace-nowrap text-white/60 hover:text-white transition-colors border-b-2 border-transparent hover:border-cyan-400 pb-2"
-              >
-                {tab}
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+          {TABS.map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2.5 rounded-[50px] text-xs font-semibold whitespace-nowrap transition-all border ${
+                activeTab === tab
+                  ? 'bg-bright-green text-white border-bright-green'
+                  : 'bg-[var(--theme-card)] text-[var(--theme-text-secondary)] border-[var(--theme-border)] hover:border-bright-green/40'
+              }`}>
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Bilgiler */}
+        {activeTab === 'Bilgiler' && (
+          <div className="nature-card p-5 space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-sm text-[var(--theme-text)]">Kişisel Bilgiler</h3>
+              <button onClick={() => setEditing(!editing)}
+                className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
+                  editing ? 'bg-bright-green text-white border-bright-green' : 'text-[var(--theme-text-secondary)] border-[var(--theme-border)]'
+                }`}>
+                {editing ? 'Kaydet' : 'Düzenle'}
               </button>
-            ))}
-          </div>
-
-          {/* Personal Information */}
-          <div className="liquid-glass-card p-8 space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Kişisel Bilgiler</h3>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                onClick={() => setIsEditing(!isEditing)}
-                className="px-4 py-2 bg-cyan-500/30 border border-cyan-400 text-cyan-300 rounded-lg font-semibold hover:bg-cyan-500/40 transition-all"
-              >
-                {isEditing ? '✓ Kaydet' : '✏️ Düzenle'}
-              </motion.button>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-white text-sm font-semibold mb-2">Ad Soyad</label>
-                <input
-                  type="text"
-                  defaultValue={profile.name}
-                  disabled={!isEditing}
-                  className={`liquid-glass-input w-full px-4 py-3 text-white placeholder-white/30 ${
-                    !isEditing ? 'opacity-60' : ''
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className="block text-white text-sm font-semibold mb-2">E-posta</label>
-                <input
-                  type="email"
-                  defaultValue={profile.email}
-                  disabled={!isEditing}
-                  className={`liquid-glass-input w-full px-4 py-3 text-white placeholder-white/30 ${
-                    !isEditing ? 'opacity-60' : ''
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className="block text-white text-sm font-semibold mb-2">Telefon</label>
-                <input
-                  type="tel"
-                  defaultValue={profile.phone}
-                  disabled={!isEditing}
-                  className={`liquid-glass-input w-full px-4 py-3 text-white placeholder-white/30 ${
-                    !isEditing ? 'opacity-60' : ''
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className="block text-white text-sm font-semibold mb-2">Şehir</label>
-                <select
-                  defaultValue={profile.city}
-                  disabled={!isEditing}
-                  className={`liquid-glass-input w-full px-4 py-3 text-white ${!isEditing ? 'opacity-60' : ''}`}
-                >
-                  <option>İstanbul</option>
-                  <option>Ankara</option>
-                  <option>İzmir</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Saved Addresses */}
-          <div className="liquid-glass-card p-8 space-y-6">
-            <h3 className="text-2xl font-bold text-white mb-6">Kayıtlı Adresler</h3>
-
             <div className="space-y-3">
-              {profile.savedAddresses.map((addr) => (
-                <motion.div
-                  key={addr.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`p-4 rounded-xl border-2 ${
-                    addr.default
-                      ? 'bg-cyan-500/20 border-cyan-400'
-                      : 'bg-white/5 border-white/10 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-white font-semibold">{addr.type}</h4>
-                    {addr.default && <span className="text-cyan-400 text-xs font-semibold">Varsayılan</span>}
-                  </div>
-                  <p className="text-white/80 text-sm mb-3">{addr.address}</p>
-                  <div className="flex gap-2">
-                    <button className="text-cyan-400 hover:text-cyan-300 text-sm font-semibold transition-colors">
-                      ✏️ Düzenle
-                    </button>
-                    <button className="text-red-400 hover:text-red-300 text-sm font-semibold transition-colors">
-                      🗑️ Sil
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <LiquidButtonBlack label="+ Yeni Adres Ekle" className="w-full" />
-            </motion.div>
-          </div>
-
-          {/* Security */}
-          <div className="liquid-glass-card p-8 space-y-6">
-            <h3 className="text-2xl font-bold text-white mb-6">Güvenlik</h3>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-white text-sm font-semibold mb-2">Mevcut Şifre</label>
-                <input
-                  type="password"
-                  value={passwords.current}
-                  onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-                  placeholder="••••••••"
-                  className="liquid-glass-input w-full px-4 py-3 text-white placeholder-white/30"
-                />
+              <div className="relative">
+                <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]" />
+                <input type="text" value={name} onChange={e => setName(e.target.value)} disabled={!editing}
+                  className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] pl-9 pr-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all disabled:opacity-60" />
               </div>
-
-              <div>
-                <label className="block text-white text-sm font-semibold mb-2">Yeni Şifre</label>
-                <input
-                  type="password"
-                  value={passwords.new}
-                  onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                  placeholder="••••••••"
-                  className="liquid-glass-input w-full px-4 py-3 text-white placeholder-white/30"
-                />
+              <div className="relative">
+                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]" />
+                <input type="email" value={email} disabled
+                  className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] pl-9 pr-4 py-3 text-sm text-[var(--theme-text)] outline-none opacity-60 cursor-not-allowed" />
               </div>
-
-              <div>
-                <label className="block text-white text-sm font-semibold mb-2">Şifreyi Onayla</label>
-                <input
-                  type="password"
-                  value={passwords.confirm}
-                  onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                  placeholder="••••••••"
-                  className="liquid-glass-input w-full px-4 py-3 text-white placeholder-white/30"
-                />
+              <div className="relative">
+                <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]" />
+                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} disabled={!editing}
+                  className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] pl-9 pr-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all disabled:opacity-60" />
               </div>
             </div>
-
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <LiquidButtonRed label="Şifreyi Güncelle" className="w-full" />
-            </motion.div>
           </div>
+        )}
 
-          {/* Danger Zone */}
-          <div className="liquid-glass-card p-8 space-y-4 border-red-500/30">
-            <h3 className="text-2xl font-bold text-white mb-4">Tehlikeli İşlemler</h3>
-
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <button className="w-full py-3 px-4 bg-red-500/20 border border-red-400 text-red-400 rounded-xl font-semibold hover:bg-red-500/30 transition-all">
-                🔓 Oturumu Kapat
-              </button>
-            </motion.div>
-
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <button className="w-full py-3 px-4 bg-red-500/20 border border-red-400 text-red-400 rounded-xl font-semibold hover:bg-red-500/30 transition-all">
-                🗑️ Hesabı Sil
-              </button>
-            </motion.div>
+        {/* Adresler */}
+        {activeTab === 'Adresler' && (
+          <div className="space-y-3">
+            {SAVED_ADDRESSES.map(addr => (
+              <div key={addr.id} className={`nature-card p-4 ${addr.default ? 'border-bright-green/40' : ''}`}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold text-sm text-[var(--theme-text)]">{addr.type}</span>
+                  {addr.default && <span className="text-[10px] font-semibold text-bright-green bg-bright-green/10 px-2 py-0.5 rounded-full">Varsayılan</span>}
+                </div>
+                <p className="text-xs text-[var(--theme-text-secondary)] mb-2">{addr.address}</p>
+                <div className="flex gap-3">
+                  <button className="text-xs font-semibold text-bright-green hover:underline">Düzenle</button>
+                  <button className="text-xs font-semibold text-red-500 hover:underline">Sil</button>
+                </div>
+              </div>
+            ))}
+            <button className="w-full py-3 border border-dashed border-[var(--theme-border)] rounded-[16px] text-sm font-semibold text-[var(--theme-text-secondary)] hover:border-bright-green/40 hover:text-bright-green transition-all">
+              + Yeni Adres Ekle
+            </button>
           </div>
-        </motion.div>
+        )}
+
+        {/* Güvenlik */}
+        {activeTab === 'Güvenlik' && (
+          <div className="space-y-4">
+            <div className="nature-card p-5">
+              <h3 className="font-bold text-sm text-[var(--theme-text)] mb-4">Şifre Değiştir</h3>
+              <div className="space-y-3">
+                <input type="password" placeholder="Mevcut şifre"
+                  className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
+                <input type="password" placeholder="Yeni şifre"
+                  className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
+                <input type="password" placeholder="Şifre tekrar"
+                  className="w-full bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-4 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
+                <button className="btn-primary w-full text-xs">Şifreyi Güncelle</button>
+              </div>
+            </div>
+            <div className="nature-card p-5 border-red-200">
+              <button className="flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors w-full">
+                <LogOut size={16} />
+                Oturumu Kapat
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,43 @@
+import { adminAuth } from '@/lib/firebase/admin';
+import { prisma } from '@/lib/prisma';
+
+export interface AuthenticatedUser {
+  id: string;
+  email: string;
+  name: string | null;
+  role: 'CUSTOMER' | 'LANDSCAPER' | 'ADMIN';
+}
+
+export async function verifyAuth(request: Request): Promise<AuthenticatedUser> {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    throw new Error('UNAUTHORIZED');
+  }
+
+  const token = authHeader.slice(7);
+  if (!adminAuth) throw new Error('FIREBASE_NOT_CONFIGURED');
+  const decoded = await adminAuth.verifyIdToken(token);
+
+  const user = await prisma.user.findUnique({
+    where: { email: decoded.email! },
+  });
+
+  if (!user) {
+    throw new Error('USER_NOT_FOUND');
+  }
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  };
+}
+
+export function errorResponse(message: string, status: number = 400) {
+  return Response.json({ error: true, message }, { status });
+}
+
+export function successResponse(data: unknown, init?: ResponseInit) {
+  return Response.json({ data }, init);
+}

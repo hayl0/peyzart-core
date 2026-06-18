@@ -1,307 +1,118 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { LiquidButtonRed, LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
+import { useState, useEffect } from 'react';
+import { MapPin, Calendar, Check, X } from 'lucide-react';
+import TabFilter from '@/app/landscaper/_components/TabFilter';
+import StatusBadge from '@/app/landscaper/_components/StatusBadge';
+import ShimmerSkeleton from '@/app/landscaper/_components/ShimmerSkeleton';
+import EmptyState from '@/app/landscaper/_components/EmptyState';
+import ErrorBanner from '@/app/landscaper/_components/ErrorBanner';
+import Pagination from '@/app/landscaper/_components/Pagination';
 
-const mockOrders = [
-  {
-    id: 1,
-    customer: 'Ahmet Yılmaz',
-    service: 'Çim Biçme',
-    phone: '+90 555 123 4567',
-    address: 'Gümüşsuyu Mah. ...',
-    date: '2024-04-18',
-    time: '14:00',
-    price: 350,
-    status: 'pending',
-    notes: 'Arka bahçeye dikkat et',
-  },
-  {
-    id: 2,
-    customer: 'Zeynep Kaya',
-    service: 'Bitki Dikimi',
-    phone: '+90 555 456 7890',
-    address: 'Ataköy Mah. ...',
-    date: '2024-04-18',
-    time: '16:30',
-    price: 450,
-    status: 'accepted',
-    notes: '',
-  },
-  {
-    id: 3,
-    customer: 'Can Demir',
-    service: 'Sulama Sistemi',
-    phone: '+90 555 789 0123',
-    address: 'Tarabya Mah. ...',
-    date: '2024-04-19',
-    time: '10:00',
-    price: 1200,
-    status: 'in-progress',
-    notes: 'Sistem planı eklenmiş',
-  },
-  {
-    id: 4,
-    customer: 'Mehmet Şahin',
-    service: 'Çim Biçme',
-    phone: '+90 555 234 5678',
-    address: 'Taksim Mah. ...',
-    date: '2024-04-17',
-    time: '09:00',
-    price: 350,
-    status: 'completed',
-    notes: '',
-  },
+const ORDERS = [
+  { id: 1, customer: 'Ahmet Yılmaz', service: 'Çim Biçme', phone: '+90 555 123 4567', address: 'Gümüşsuyu Mah. Çevre Yolu No:45', date: '18 Nis 2026', time: '14:00', price: 350, status: 'pending', notes: 'Arka bahçeye dikkat et' },
+  { id: 2, customer: 'Zeynep Kaya', service: 'Bitki Dikimi', phone: '+90 555 456 7890', address: 'Ataköy Mah. Londra Asfaltı No:12', date: '18 Nis 2026', time: '16:30', price: 450, status: 'accepted', notes: '' },
+  { id: 3, customer: 'Can Demir', service: 'Sulama Sistemi', phone: '+90 555 789 0123', address: 'Tarabya Mah. Sahil Yolu No:8', date: '19 Nis 2026', time: '10:00', price: 1200, status: 'in-progress', notes: 'Sistem planı eklendi' },
+  { id: 4, customer: 'Mehmet Şahin', service: 'Çim Biçme', phone: '+90 555 234 5678', address: 'Taksim Mah. İstiklal Cad. No:22', date: '20 Nis 2026', time: '09:00', price: 350, status: 'pending', notes: '' },
+  { id: 5, customer: 'Elif Demirtaş', service: 'Peyzaj Tasarım', phone: '+90 555 876 5432', address: 'Bebek Mah. Cevdet Paşa Cad. No:5', date: '17 Nis 2026', time: '11:00', price: 750, status: 'completed', notes: '' },
 ];
 
-const statusColors = {
-  pending: { bg: 'bg-yellow-500/20', border: 'border-yellow-400', text: 'text-yellow-400', label: 'Bekliyor' },
-  accepted: { bg: 'bg-blue-500/20', border: 'border-blue-400', text: 'text-blue-400', label: 'Kabul Edildi' },
-  'in-progress': { bg: 'bg-cyan-500/20', border: 'border-cyan-400', text: 'text-cyan-400', label: 'Yapılıyor' },
-  completed: { bg: 'bg-green-500/20', border: 'border-green-400', text: 'text-green-400', label: 'Tamamlandı' },
+const TABS = ['Tümü', 'Bekleyen', 'Kabul Edilen', 'Devam Eden', 'Tamamlanan'];
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Bekliyor',
+  accepted: 'Kabul Edildi',
+  'in-progress': 'Devam Ediyor',
+  completed: 'Tamamlandı',
 };
 
-export default function LandscaperOrders() {
-  const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
-  const [filter, setFilter] = useState('all');
+const PAGE_SIZE = 4;
 
-  const filteredOrders = mockOrders.filter((order) => {
-    if (filter === 'all') return true;
-    return order.status === filter;
-  });
+export default function LandscaperOrdersPage() {
+  const [tab, setTab] = useState('Tümü');
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    setPage(1);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [tab]);
+
+  const filtered = tab === 'Tümü' ? ORDERS
+    : tab === 'Bekleyen' ? ORDERS.filter(o => o.status === 'pending')
+    : tab === 'Kabul Edilen' ? ORDERS.filter(o => o.status === 'accepted')
+    : tab === 'Devam Eden' ? ORDERS.filter(o => o.status === 'in-progress')
+    : ORDERS.filter(o => o.status === 'completed');
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 pb-20">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-10"
-      >
-        <h1 className="text-4xl font-black text-white mb-2">
-          <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Siparişlerim
-          </span>
-        </h1>
-        <p className="text-white/60">Gelen hizmet taleplerini yönetin</p>
-      </motion.div>
+    <div>
+      <h1 className="text-xl md:text-2xl font-bold text-white mb-6">Siparişler</h1>
 
-      {/* Filter Tabs */}
-      <div className="flex gap-3 mb-8 pb-4 border-b border-white/10 overflow-x-auto">
-        {[
-          { key: 'all', label: 'Tümü' },
-          { key: 'pending', label: 'Beklemede' },
-          { key: 'accepted', label: 'Kabul Edildi' },
-          { key: 'in-progress', label: 'Yapılıyor' },
-          { key: 'completed', label: 'Tamamlandı' },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key)}
-            className={`px-4 py-2 whitespace-nowrap font-semibold transition-all border-b-2 ${
-              filter === tab.key
-                ? 'border-cyan-400 text-cyan-400'
-                : 'border-transparent text-white/60 hover:text-white'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <TabFilter tabs={TABS} active={tab} onChange={setTab} />
 
-      {/* Orders List */}
-      <div className="space-y-4">
-        {filteredOrders.map((order, idx) => {
-          const colors = statusColors[order.status as keyof typeof statusColors];
-          const isSelected = selectedOrder === order.id;
-
-          return (
-            <motion.button
-              key={order.id}
-              onClick={() => setSelectedOrder(isSelected ? null : order.id)}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="w-full text-left"
-            >
-              <div
-                className={`liquid-glass-card p-6 transition-all ${
-                  isSelected ? 'ring-2 ring-cyan-400' : 'hover:shadow-lg hover:shadow-cyan-500/30'
-                }`}
-              >
-                {/* Header Row */}
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center mb-4">
-                  {/* Customer */}
-                  <div className="md:col-span-2">
-                    <h3 className="text-white font-semibold mb-1">{order.customer}</h3>
-                    <p className="text-white/60 text-sm">{order.service}</p>
-                  </div>
-
-                  {/* Date & Time */}
-                  <div className="md:col-span-1">
-                    <p className="text-white/60 text-sm mb-1">Tarih/Saat</p>
-                    <p className="text-white text-sm font-semibold">
-                      {new Date(order.date).toLocaleDateString('tr-TR')} {order.time}
-                    </p>
-                  </div>
-
-                  {/* Price */}
-                  <div className="md:col-span-1">
-                    <p className="text-white/60 text-sm mb-1">Fiyat</p>
-                    <p className="text-cyan-400 font-bold">₺{order.price}</p>
-                  </div>
-
-                  {/* Status */}
-                  <div className="md:col-span-1">
-                    <span className={`inline-block px-3 py-1 rounded-full border text-xs font-semibold ${colors.bg} ${colors.border} ${colors.text}`}>
-                      {colors.label}
-                    </span>
-                  </div>
-
-                  {/* Action Arrow */}
-                  <div className="md:col-span-1 text-right">
-                    <span className="text-white/60">{isSelected ? '▼' : '▶'}</span>
-                  </div>
-                </div>
-
-                {/* Expanded Details */}
-                {isSelected && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    transition={{ duration: 0.3 }}
-                    className="mt-6 pt-6 border-t border-white/10 space-y-4"
-                  >
-                    {/* Contact Info */}
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <p className="text-white/60 text-sm mb-2">Müşteri Telefonu</p>
-                        <p className="text-white font-semibold flex items-center gap-2">
-                          📞 {order.phone}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-white/60 text-sm mb-2">Tam Adres</p>
-                        <p className="text-white font-semibold">{order.address}</p>
-                      </div>
+      {error ? (
+        <div className="mt-6">
+          <ErrorBanner message="Siparişler yüklenirken bir hata oluştu." onRetry={() => setError(false)} />
+        </div>
+      ) : loading ? (
+        <div className="space-y-3 mt-6">
+          <ShimmerSkeleton variant="row" count={4} />
+        </div>
+      ) : paginated.length === 0 ? (
+        <div className="mt-6">
+          <EmptyState message="Bu kategoride talep bulunmuyor" />
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3 mt-6">
+            {paginated.map(order => (
+              <div key={order.id} className="bg-white/5 border border-white/10 rounded-[16px] p-4 md:p-5 hover:bg-white/[0.07] transition-all">
+                <div className="flex flex-col md:flex-row md:items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-bold text-white text-sm">{order.customer}</h3>
+                      <StatusBadge status={order.status} label={STATUS_LABELS[order.status]} />
                     </div>
-
-                    {/* Notes */}
-                    {order.notes && (
-                      <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-                        <p className="text-white/60 text-sm mb-2">Müşteri Notu</p>
-                        <p className="text-white/80">"{order.notes}"</p>
+                    <p className="text-sm text-bright-green font-semibold mb-1">{order.service}</p>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/50">
+                      <span className="flex items-center gap-1"><Calendar size={12} />{order.date} {order.time}</span>
+                      <span className="flex items-center gap-1"><MapPin size={12} className="shrink-0" />{order.address}</span>
+                    </div>
+                    {order.notes && <p className="text-xs text-white/30 italic mt-2">"{order.notes}"</p>}
+                  </div>
+                  <div className="flex items-center gap-3 md:flex-col md:items-end">
+                    <span className="text-lg font-extrabold text-white">₺{order.price}</span>
+                    {order.status === 'pending' && (
+                      <div className="flex gap-2">
+                        <button className="w-10 h-10 rounded-xl bg-bright-green/20 text-bright-green flex items-center justify-center hover:bg-bright-green/30 transition-all"><Check size={16} /></button>
+                        <button className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/30 transition-all"><X size={16} /></button>
                       </div>
                     )}
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4 border-t border-white/10 flex-wrap">
-                      {order.status === 'pending' && (
-                        <>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-6 py-3 bg-green-500/30 border border-green-400 text-green-400 rounded-lg font-semibold hover:bg-green-500/40 transition-all"
-                          >
-                            ✓ Kabul Et
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-6 py-3 bg-white/10 border border-white/20 text-white rounded-lg font-semibold hover:border-white/40 transition-all"
-                          >
-                            💬 Teklif Ver
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-6 py-3 bg-red-500/20 border border-red-400 text-red-400 rounded-lg font-semibold hover:bg-red-500/30 transition-all"
-                          >
-                            ✗ Reddet
-                          </motion.button>
-                        </>
-                      )}
-
-                      {order.status === 'accepted' && (
-                        <>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-6 py-3 bg-cyan-500/30 border border-cyan-400 text-cyan-300 rounded-lg font-semibold hover:bg-cyan-500/40 transition-all"
-                          >
-                            📞 Müşteri Ara
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-6 py-3 bg-white/10 border border-white/20 text-white rounded-lg font-semibold hover:border-white/40 transition-all"
-                          >
-                            💬 Mesaj Gönder
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-6 py-3 bg-blue-500/30 border border-blue-400 text-blue-300 rounded-lg font-semibold hover:bg-blue-500/40 transition-all"
-                          >
-                            ✓ Kabul Edin
-                          </motion.button>
-                        </>
-                      )}
-
-                      {order.status === 'in-progress' && (
-                        <>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-6 py-3 bg-cyan-500/30 border border-cyan-400 text-cyan-300 rounded-lg font-semibold hover:bg-cyan-500/40 transition-all"
-                          >
-                            📍 Konum Paylaş
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="px-6 py-3 bg-green-500/30 border border-green-400 text-green-400 rounded-lg font-semibold hover:bg-green-500/40 transition-all"
-                          >
-                            ✓ Tamamla
-                          </motion.button>
-                        </>
-                      )}
-
-                      {order.status === 'completed' && (
-                        <button
-                          disabled
-                          className="px-6 py-3 bg-white/10 border border-white/20 text-white/60 rounded-lg font-semibold cursor-default"
-                        >
-                          ✓ Hizmet Tamamlandı
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Additional Info */}
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-4 text-sm text-white/80">
-                      <p>💡 İpucu: Müşteriye hemen ulaşmak daha iyi değerlendirme almanızı sağlar.</p>
-                    </div>
-                  </motion.div>
-                )}
+                    {order.status === 'accepted' && (
+                      <button className="text-xs font-semibold text-bright-green bg-bright-green/10 px-3 py-1.5 rounded-full hover:bg-bright-green/20 transition-all">Başlat</button>
+                    )}
+                    {order.status === 'in-progress' && (
+                      <button className="text-xs font-semibold text-bright-green bg-bright-green/10 px-3 py-1.5 rounded-full hover:bg-bright-green/20 transition-all">Tamamla</button>
+                    )}
+                    {order.status === 'completed' && (
+                      <button className="text-xs font-semibold text-white/40 px-3 py-1.5">Detay</button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </motion.button>
-          );
-        })}
-      </div>
-
-      {/* Empty State */}
-      {filteredOrders.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-16"
-        >
-          <div className="text-6xl mb-4">📭</div>
-          <h3 className="text-white text-xl font-semibold mb-2">Sipariş bulunamadı</h3>
-          <p className="text-white/60">Henüz bu kategoride sipariş yoktur</p>
-        </motion.div>
+            ))}
+          </div>
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </>
       )}
     </div>
   );

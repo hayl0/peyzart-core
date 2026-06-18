@@ -19,7 +19,7 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col fixed left-0 top-0 bottom-0 w-64 bg-[var(--theme-card)] border-r border-[var(--theme-border)] z-50 p-6">
-      <div className="logo-gradient text-[28px] mb-10 mt-2">Peyzart</div>
+      <div className="logo-gradient text-[34px] mb-10 mt-2">Peyzart</div>
 
       <nav className="flex flex-col gap-1 flex-1">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {

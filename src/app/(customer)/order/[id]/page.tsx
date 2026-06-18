@@ -1,219 +1,140 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { LiquidButtonRed, LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
+import { ChevronLeft, User, MapPin, Calendar, Clock, Send, CheckCircle } from 'lucide-react';
 
-const mockOrder = {
-  id: 1,
-  landscaper: {
-    name: 'Ali Çimen',
-    rating: 4.8,
-    phone: '+90 555 123 4567',
-    avatar: '👨‍🌾',
-  },
-  service: 'Çim Biçme',
-  status: 'in-progress',
-  statusSteps: [
-    { step: 'Kabul Edildi', completed: true, time: '10:30' },
-    { step: 'Yolda', completed: true, time: '14:15' },
-    { step: 'Hizmet Veriliyor', completed: true, time: 'Şu an' },
-    { step: 'Tamamlandı', completed: false, time: '-' },
-  ],
-  address: 'Gümüşsuyu Mah. Çevre Yolu No:45, İstanbul',
-  date: '2024-04-18',
-  time: '14:00',
-  price: 450,
-  notes: 'Arka bahçeye dikkat et, tehlikeli kablolar var.',
-};
+const STEPS = [
+  { label: 'Talep Alındı', time: '10:30', done: true },
+  { label: 'Kabul Edildi', time: '11:00', done: true },
+  { label: 'Hizmet Başladı', time: '14:15', done: true },
+  { label: 'Tamamlandı', time: '-', done: false },
+];
 
-export default function OrderTrackingPage({ params }: { params: { id: string } }) {
-  const [showChat, setShowChat] = useState(false);
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'landscaper', text: 'Merhaba! Adresinize gitmek üzere yolda', time: '14:20' },
-    { id: 2, sender: 'customer', text: 'Tahmini ne zaman geleceksiniz?', time: '14:25' },
-    { id: 3, sender: 'landscaper', text: '15-20 dakika içinde orada olacağım', time: '14:26' },
-  ]);
+const MESSAGES = [
+  { id: 1, from: 'provider', text: 'Merhaba! Adresinize gitmek üzere yoldayım', time: '14:20' },
+  { id: 2, from: 'me', text: 'Tahmini ne zaman gelirsiniz?', time: '14:25' },
+  { id: 3, from: 'provider', text: '15-20 dk içinde orada olurum', time: '14:26' },
+];
+
+export default function OrderDetailPage() {
   const [input, setInput] = useState('');
 
   return (
-    <div className="max-w-4xl mx-auto px-6 pb-20">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 flex items-center gap-4"
-      >
-        <Link href="/orders" className="text-white/60 hover:text-white transition-colors">
-          ← Siparişler
+    <div className="min-h-screen bg-[var(--theme-bg)]">
+      <div className="max-w-3xl mx-auto p-4 md:p-6 pb-24">
+        {/* Back */}
+        <Link href="/orders" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)] transition-colors mb-4">
+          <ChevronLeft size={18} />
+          Siparişler
         </Link>
-      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-2 space-y-6"
-        >
-          {/* Landscaper Card */}
-          <div className="liquid-glass-card p-6 flex items-center gap-6">
-            <div className="text-5xl">{mockOrder.landscaper.avatar}</div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white mb-1">{mockOrder.landscaper.name}</h2>
-              <p className="text-yellow-400 mb-3">⭐ {mockOrder.landscaper.rating}</p>
-              <p className="text-white/60 text-sm">📞 {mockOrder.landscaper.phone}</p>
-            </div>
-          </div>
-
-          {/* Map Placeholder */}
-          <div className="hero-gradient rounded-3xl p-12 min-h-64 flex items-center justify-center border border-cyan-400/20">
-            <div className="text-center space-y-4">
-              <div className="text-6xl">🗺️</div>
-              <h3 className="text-white text-xl font-semibold">Canlı Harita Takibi</h3>
-              <p className="text-white/60">Google Maps API ile gerçek konumu takip edebilirsiniz</p>
-            </div>
-          </div>
-
-          {/* Status Steps */}
-          <div className="liquid-glass-card p-6 space-y-4">
-            <h3 className="text-white font-semibold text-lg mb-6">Sipariş Durumu</h3>
-            
-            {mockOrder.statusSteps.map((item, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="flex items-center gap-4 pb-4"
-              >
-                <motion.div
-                  animate={{
-                    scale: item.completed ? 1.2 : 1,
-                    backgroundColor: item.completed ? '#00f0ff' : 'rgba(255,255,255,0.1)',
-                  }}
-                  className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold ${
-                    item.completed ? 'text-gray-900' : 'text-white/60'
-                  }`}
-                >
-                  {item.completed ? '✓' : idx + 1}
-                </motion.div>
-                <div className="flex-1">
-                  <h4 className={`font-semibold ${item.completed ? 'text-white' : 'text-white/60'}`}>
-                    {item.step}
-                  </h4>
-                  <p className="text-white/40 text-sm">{item.time}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Details */}
-          <div className="liquid-glass-card p-6 space-y-4">
-            <h3 className="text-white font-semibold text-lg mb-4">Sipariş Detayları</h3>
-            
-            <div className="space-y-3 pb-4 border-b border-white/10">
-              <div className="flex justify-between">
-                <span className="text-white/60">Hizmet</span>
-                <span className="text-white font-semibold">{mockOrder.service}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Provider Card */}
+            <div className="nature-card p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-bright-green/20 flex items-center justify-center text-bright-green font-bold text-lg">
+                A
               </div>
-              <div className="flex justify-between">
-                <span className="text-white/60">Tarih & Saat</span>
-                <span className="text-white font-semibold">
-                  {new Date(mockOrder.date).toLocaleDateString('tr-TR')} {mockOrder.time}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-white/60">Adres</span>
-                <span className="text-white font-semibold text-right">{mockOrder.address}</span>
-              </div>
-            </div>
-
-            {mockOrder.notes && (
               <div>
-                <p className="text-white/60 text-sm mb-2">Özel Not</p>
-                <p className="text-white/80 italic">"{mockOrder.notes}"</p>
+                <h2 className="font-bold text-[var(--theme-text)]">Ali Çimen</h2>
+                <p className="text-xs text-[var(--theme-text-secondary)]">⭐ 4.8 · 156 yorum</p>
               </div>
-            )}
-          </div>
-        </motion.div>
+              <button className="ml-auto text-xs font-semibold text-bright-green bg-bright-green/10 px-3 py-1.5 rounded-full hover:bg-bright-green/20 transition-colors">
+                Ara
+              </button>
+            </div>
 
-        {/* Sidebar */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-1 space-y-4"
-        >
-          {/* Chat Box */}
-          <div className="liquid-glass-card p-6 flex flex-col h-96">
-            <h3 className="text-white font-semibold mb-4">Mesajlaşma</h3>
+            {/* Map Placeholder */}
+            <div className="h-40 md:h-48 rounded-[20px] bg-gradient-to-br from-[#a8d5a2] to-[#66bb6a] flex items-center justify-center">
+              <div className="text-center">
+                <MapPin size={24} className="mx-auto text-white/80 mb-1" />
+                <p className="text-xs text-white/70">Harita entegrasyonu yakında</p>
+              </div>
+            </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
-              {messages.map((msg) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${msg.sender === 'customer' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-xs px-4 py-2 rounded-lg ${
-                      msg.sender === 'customer'
-                        ? 'bg-cyan-500/30 border border-cyan-400 text-white'
-                        : 'bg-white/10 border border-white/20 text-white/80'
-                    }`}
-                  >
-                    <p className="text-sm">{msg.text}</p>
-                    <p className="text-xs text-white/40 mt-1">{msg.time}</p>
+            {/* Timeline */}
+            <div className="nature-card p-5">
+              <h3 className="font-bold text-sm text-[var(--theme-text)] mb-4">Sipariş Durumu</h3>
+              <div className="space-y-0">
+                {STEPS.map((s, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                        s.done ? 'bg-bright-green text-white' : 'bg-[var(--theme-border)] text-[var(--theme-text-muted)]'
+                      }`}>
+                        {s.done ? <CheckCircle size={16} /> : i + 1}
+                      </div>
+                      {i < STEPS.length - 1 && (
+                        <div className={`w-0.5 h-8 ${s.done ? 'bg-bright-green' : 'bg-[var(--theme-border)]'}`} />
+                      )}
+                    </div>
+                    <div className="pb-6">
+                      <p className={`text-sm font-semibold ${s.done ? 'text-[var(--theme-text)]' : 'text-[var(--theme-text-muted)]'}`}>{s.label}</p>
+                      <p className="text-xs text-[var(--theme-text-muted)]">{s.time}</p>
+                    </div>
                   </div>
-                </motion.div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            {/* Input */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Mesaj gönder..."
-                className="liquid-glass-input flex-1 px-3 py-2 text-white placeholder-white/30 text-sm"
-              />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-3 py-2 bg-cyan-500/30 border border-cyan-400 text-cyan-300 rounded-lg hover:bg-cyan-500/40 transition-all"
-              >
-                📤
-              </motion.button>
+            {/* Details */}
+            <div className="nature-card p-5 space-y-3">
+              <h3 className="font-bold text-sm text-[var(--theme-text)]">Detaylar</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[var(--theme-text-secondary)]">Hizmet</span>
+                  <span className="font-semibold text-[var(--theme-text)]">Çim Biçme</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--theme-text-secondary)]">Tarih</span>
+                  <span className="font-semibold text-[var(--theme-text)]">18 Nisan 2024 · 14:00</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--theme-text-secondary)]">Adres</span>
+                  <span className="font-semibold text-[var(--theme-text)] text-right max-w-[200px]">Gümüşsuyu Mah. Çevre Yolu No:45</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-[var(--theme-border)]">
+                  <span className="font-bold text-[var(--theme-text)]">Toplam</span>
+                  <span className="font-extrabold text-lg text-[var(--theme-text)]">₺450</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Price Summary */}
-          <div className="liquid-glass-card p-6 space-y-3">
-            <h3 className="text-white font-semibold mb-3">Ödeme Özeti</h3>
-            <div className="flex justify-between pb-3 border-b border-white/10">
-              <span className="text-white/60">Hizmet Ücreti</span>
-              <span className="text-white">₺{mockOrder.price}</span>
+          {/* Sidebar: Chat */}
+          <div className="space-y-4">
+            <div className="nature-card p-4 flex flex-col h-[400px]">
+              <h3 className="font-bold text-sm text-[var(--theme-text)] mb-3">Mesajlar</h3>
+              <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1">
+                {MESSAGES.map(msg => (
+                  <div key={msg.id} className={`flex ${msg.from === 'me' ? 'justify-end' : ''}`}>
+                    <div className={`max-w-[80%] px-3.5 py-2 rounded-[16px] text-sm ${
+                      msg.from === 'me'
+                        ? 'bg-bright-green text-white rounded-br-[4px]'
+                        : 'bg-[var(--theme-card)] border border-[var(--theme-border)] text-[var(--theme-text)] rounded-bl-[4px]'
+                    }`}>
+                      <p>{msg.text}</p>
+                      <p className={`text-[10px] mt-0.5 ${msg.from === 'me' ? 'text-white/60' : 'text-[var(--theme-text-muted)]'}`}>{msg.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input type="text" value={input} onChange={e => setInput(e.target.value)} placeholder="Mesaj yaz..."
+                  className="flex-1 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[14px] px-3.5 py-3 text-sm text-[var(--theme-text)] outline-none focus:border-bright-green/40 transition-all" />
+                <button className="w-11 h-11 bg-bright-green rounded-full flex items-center justify-center text-white hover:bg-bright-green/90 transition-colors flex-shrink-0">
+                  <Send size={16} />
+                </button>
+              </div>
             </div>
-            <div className="flex justify-between font-bold text-white">
-              <span>Toplam Tutar</span>
-              <span className="text-cyan-400 text-lg">₺{mockOrder.price}</span>
-            </div>
-          </div>
 
-          {/* Actions */}
-          <div className="space-y-2">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <LiquidButtonRed label="Destek Al" className="w-full !py-3" />
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <LiquidButtonBlack label="İptal Et" className="w-full !py-3" />
-            </motion.div>
+            <button className="w-full py-3 border border-red-200 text-red-500 rounded-[14px] text-sm font-semibold hover:bg-red-50 transition-colors">
+              İptal Et
+            </button>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

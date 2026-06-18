@@ -1,385 +1,126 @@
-"use client";
+'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Navbar } from '@/components/layout/Navbar';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import {
-  AlertCircle,
-  TrendingUp,
-  Leaf,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  Calendar,
-  Users,
-  DollarSign,
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, Layers, DollarSign, Clock } from 'lucide-react';
+import KpiCard from '../_components/KpiCard';
+import NotificationItem from '../_components/NotificationItem';
+import ShimmerSkeleton from '../_components/ShimmerSkeleton';
+import EmptyState from '../_components/EmptyState';
+import ErrorBanner from '../_components/ErrorBanner';
+import TabFilter from '../_components/TabFilter';
 
-// Mock data
-const metrics = [
-  {
-    icon: Users,
-    label: 'Aktif Müşteriler',
-    value: '24',
-    change: '+12%',
-    color: 'cyan',
-  },
-  {
-    icon: Leaf,
-    label: 'Devam Eden Projeler',
-    value: '8',
-    change: '+4',
-    color: 'green',
-  },
-  {
-    icon: DollarSign,
-    label: 'Bu Ay Gelir',
-    value: '₺12.450',
-    change: '+8%',
-    color: 'blue',
-  },
-  {
-    icon: Clock,
-    label: 'Ortalama Tepki Süresi',
-    value: '2.3h',
-    change: '-15%',
-    color: 'purple',
-  },
+const TIME_FILTERS = ['Bugün', 'Bu Hafta', 'Bu Ay'];
+
+const KPI_DATA = [
+  { icon: Users, label: 'Aktif Müşteri', value: '24', change: '▲ %12 bu ay', iconBg: 'bg-lime-500/15', iconColor: 'text-lime-400' },
+  { icon: Layers, label: 'Devam Eden', value: '8', change: '▲ %4 bu ay', iconBg: 'bg-green-500/15', iconColor: 'text-green-400' },
+  { icon: DollarSign, label: 'Bu Ay Gelir', value: '₺12.450', change: '▲ %18 hedef', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-400', changeColor: 'text-lime-400' },
+  { icon: Clock, label: 'Tepki Süresi', value: '2.3s', change: '▼ %15 iyileşme', iconBg: 'bg-purple-500/15', iconColor: 'text-purple-400', changeColor: 'text-white/40' },
 ];
 
-const alerts = [
-  {
-    id: 1,
-    title: 'Yüksek Talebi Olan İş',
-    subtitle: 'Proje #5',
-    severity: 'warning',
-    time: '2 saat önce',
-  },
-  {
-    id: 2,
-    title: 'Müşteri Geri Bildirim Bekliyor',
-    subtitle: 'Proje #12',
-    severity: 'info',
-    time: '5 saat önce',
-  },
-  {
-    id: 3,
-    title: 'Ödeme Alındı',
-    subtitle: 'Müşteri: Ali Kaya',
-    severity: 'success',
-    time: '1 saat önce',
-  },
+const CHART_DATA = [
+  { day: 'Pzt', value: 65 },
+  { day: 'Sal', value: 72 },
+  { day: 'Çar', value: 58 },
+  { day: 'Per', value: 84 },
+  { day: 'Cum', value: 91 },
+  { day: 'Cmt', value: 45 },
+  { day: 'Paz', value: 38 },
 ];
 
-const projects = [
-  {
-    id: '1',
-    name: 'Villa Bahçesi Tasarımı',
-    customer: 'Ahmet Yılmaz',
-    status: 'Devam Ediyor',
-    progress: 65,
-    budget: '₺8.500',
-    date: '15 Nisan 2026',
-  },
-  {
-    id: '2',
-    name: 'Ticari Peyzaj Projesi',
-    customer: 'Şirket A',
-    status: 'Beklemede',
-    progress: 30,
-    budget: '₺15.000',
-    date: '18 Nisan 2026',
-  },
-  {
-    id: '3',
-    name: 'Bahçe Bakım Hizmeti',
-    customer: 'Fatma Demir',
-    status: 'Tamamlandı',
-    progress: 100,
-    budget: '₺2.500',
-    date: '10 Nisan 2026',
-  },
+const NOTIFICATIONS = [
+  { title: 'Yeni müşteri talebi', desc: 'Çim Bakımı için Acil Talep', time: '2 dk önce', dotColor: 'bg-yellow-400', bgClass: 'bg-yellow-500/5' },
+  { title: 'Proje tamamlandı', desc: 'Zeynep K. — Bahçe Düzenleme', time: '1 saat önce', dotColor: 'bg-bright-green', bgClass: 'bg-bright-green/5' },
+  { title: 'Ödeme alındı', desc: '₺1.200 — Sulama Sistemi', time: '3 saat önce', dotColor: 'bg-blue-400', bgClass: 'bg-blue-400/5' },
 ];
-
-const getStatusColor = (status: string) => {
-  if (status === 'Tamamlandı') return 'success';
-  if (status === 'Devam Ediyor') return 'info';
-  return 'warning';
-};
-
-const getSeverityColor = (severity: string) => {
-  if (severity === 'warning')
-    return 'from-yellow-500/20 to-orange-500/20 border-yellow-500/50';
-  if (severity === 'success')
-    return 'from-green-500/20 to-emerald-500/20 border-green-500/50';
-  return 'from-blue-500/20 to-cyan-500/20 border-blue-500/50';
-};
 
 export default function LandscaperDashboard() {
-  const [selectedAlert, setSelectedAlert] = useState<number | null>(null);
+  const [status, setStatus] = useState<'loading' | 'error' | 'empty' | 'success'>('loading');
+  const [timeFilter, setTimeFilter] = useState('Bu Hafta');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setStatus('success'), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const maxValue = Math.max(...CHART_DATA.map(d => d.value));
 
   return (
-    <div className="min-h-screen bg-peyzart-darker overflow-hidden">
-      <Navbar />
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-4xl font-black text-white mb-2">
-            <span className="bg-gradient-to-r from-peyzart-cyan to-peyzart-blue bg-clip-text text-transparent">
-              Kontrol Paneli
-            </span>
-          </h1>
-          <p className="text-white/60">Hoş geldin, İbrahim! 👋</p>
-        </motion.div>
-
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {metrics.map((metric, i) => {
-            const Icon = metric.icon;
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card variant="glass">
-                  <div className="flex items-start justify-between mb-4">
-                    <Icon className="w-8 h-8 text-peyzart-cyan" />
-                    <Badge variant="success" size="sm">
-                      {metric.change}
-                    </Badge>
-                  </div>
-                  <h3 className="text-white/70 text-sm font-semibold mb-2">
-                    {metric.label}
-                  </h3>
-                  <p className="text-3xl font-black text-white">{metric.value}</p>
-                </Card>
-              </motion.div>
-            );
-          })}
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-white">Kontrol Paneli</h1>
+          <p className="text-[11px] text-white/35 mt-1">Hoş geldin, Ahmet — bugün 4 yeni talep var</p>
         </div>
-
-        {/* Main Grid: Alerts & Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Critical Alerts */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="lg:col-span-1"
-          >
-            <Card variant="gradient">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <AlertCircle className="w-6 h-6 text-yellow-400" />
-                  <h2 className="text-xl font-bold text-white">Uyarılar</h2>
-                </div>
-                <button className="text-peyzart-cyan hover:text-peyzart-cyan/80 text-sm font-semibold transition-colors">
-                  Tümü Gör
-                </button>
-              </div>
-
-              {/* Alerts Section */}
-              <div className="space-y-3">
-                {alerts.map((alert) => (
-                  <motion.div
-                    key={alert.id}
-                    whileHover={{ scale: 1.02 }}
-                    onClick={() => setSelectedAlert(alert.id)}
-                    className={`
-                      p-4 rounded-xl cursor-pointer transition-all border
-                      backdrop-blur-sm
-                      ${getSeverityColor(alert.severity)}
-                    `}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-white font-bold">{alert.title}</h3>
-                        <p className="text-white/70 text-sm">{alert.subtitle}</p>
-                      </div>
-                      <span className="text-white/50 text-xs">{alert.time}</span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Alert Details Modal */}
-              {selectedAlert && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                  <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                    <h2 className="text-xl font-bold mb-4">
-                      {alerts.find((a) => a.id === selectedAlert)?.title}
-                    </h2>
-                    <p className="text-gray-700 mb-4">
-                      {alerts.find((a) => a.id === selectedAlert)?.subtitle}
-                    </p>
-                    <button
-                      onClick={() => setSelectedAlert(null)}
-                      className="bg-peyzart-cyan text-white px-4 py-2 rounded-lg hover:bg-peyzart-cyan/80"
-                    >
-                      Kapat
-                    </button>
-                  </div>
-                </div>
-              )}
-            </Card>
-          </motion.div>
-
-          {/* Activity Overview */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="lg:col-span-2"
-          >
-            <Card variant="glass">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                  <TrendingUp className="w-6 h-6 text-peyzart-cyan" />
-                  Bu Hafta Aktivite
-                </h2>
-              </div>
-
-              {/* Simple Chart */}
-              <div className="space-y-4">
-                {[
-                  { day: 'Pazartesi', value: 65, max: 100 },
-                  { day: 'Salı', value: 78, max: 100 },
-                  { day: 'Çarşamba', value: 45, max: 100 },
-                  { day: 'Perşembe', value: 92, max: 100 },
-                  { day: 'Cuma', value: 55, max: 100 },
-                  { day: 'Cumartesi', value: 85, max: 100 },
-                  { day: 'Pazar', value: 30, max: 100 },
-                ].map((item, i) => (
-                  <div key={i}>
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-semibold text-white/70">
-                        {item.day}
-                      </p>
-                      <p className="text-sm font-bold text-peyzart-cyan">
-                        {item.value}%
-                      </p>
-                    </div>
-                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${item.value}%` }}
-                        transition={{ delay: i * 0.1, duration: 1 }}
-                        className="h-full bg-gradient-to-r from-peyzart-cyan to-peyzart-blue rounded-full"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Projects Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card variant="glass">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                <Calendar className="w-6 h-6 text-peyzart-purple" />
-                Aktif Projeler
-              </h2>
-              <button className="text-peyzart-cyan hover:text-peyzart-cyan/80 text-sm font-semibold transition-colors">
-                Tümünü Görüntüle
-              </button>
-            </div>
-
-            {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white/70">
-                      Proje Adı
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white/70">
-                      Müşteri
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white/70">
-                      Durum
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white/70">
-                      İlerleme
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white/70">
-                      Bütçe
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-white/70">
-                      Tarih
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {projects.map((project, i) => (
-                    <motion.tr
-                      key={project.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.4 + i * 0.05 }}
-                      className="border-b border-white/5 hover:bg-white/5 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <p className="font-semibold text-white">{project.name}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-white/70">{project.customer}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge
-                          variant={getStatusColor(project.status) as any}
-                          size="sm"
-                        >
-                          {project.status}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-20 h-2 bg-white/10 rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${project.progress}%` }}
-                              transition={{ duration: 1 }}
-                              className="h-full bg-gradient-to-r from-peyzart-cyan to-peyzart-purple"
-                            />
-                          </div>
-                          <p className="text-sm font-semibold text-white/70 min-w-[2.5rem]">
-                            %{project.progress}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="font-semibold text-peyzart-cyan">
-                          {project.budget}
-                        </p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-white/70 text-sm">{project.date}</p>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </motion.div>
+        <TabFilter tabs={TIME_FILTERS} active={timeFilter} onChange={setTimeFilter} />
       </div>
+
+      {status === 'loading' && (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <ShimmerSkeleton variant="card" count={4} />
+          </div>
+          <ShimmerSkeleton variant="chart" />
+        </>
+      )}
+
+      {status === 'error' && (
+        <ErrorBanner message="Veriler yüklenirken bir hata oluştu" onRetry={() => setStatus('loading')} />
+      )}
+
+      {status === 'empty' && (
+        <EmptyState message="Henüz hiçbir veri bulunmuyor" actionLabel="Yenile" onAction={() => setStatus('loading')} />
+      )}
+
+      {status === 'success' && (
+        <>
+          {/* KPI Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {KPI_DATA.map((kpi, i) => (
+              <KpiCard key={i} {...kpi} />
+            ))}
+          </div>
+
+          {/* Bottom Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
+            {/* Left: Weekly Activity Chart */}
+            <div className="bg-white/[0.02] border border-white/[0.05] rounded-[18px] p-[18px]">
+              <h2 className="text-[11px] font-bold tracking-[0.5px] text-white/50 uppercase mb-4">Haftalık Aktivite</h2>
+              <div className="flex gap-[6px] items-end h-[64px]">
+                {CHART_DATA.map((d, i) => {
+                  const isFriday = d.day === 'Cum';
+                  const heightPercent = (d.value / maxValue) * 100;
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                      <div
+                        className="w-full rounded-t-[4px] transition-all min-h-[4px]"
+                        style={{
+                          height: `${heightPercent}%`,
+                          background: isFriday
+                            ? 'linear-gradient(to top, rgba(132,204,22,0.7), rgba(132,204,22,0.15))'
+                            : 'linear-gradient(to top, rgba(34,197,94,0.6), rgba(34,197,94,0.1))',
+                        }}
+                      />
+                      <span className={`text-[8px] font-semibold ${isFriday ? 'text-lime-400' : 'text-white/25'}`}>
+                        {d.day}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right: Recent Notifications */}
+            <div className="space-y-2">
+              <h2 className="text-[11px] font-bold tracking-[0.5px] text-white/50 uppercase">Son Bildirimler</h2>
+              {NOTIFICATIONS.map((n, i) => (
+                <NotificationItem key={i} {...n} />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

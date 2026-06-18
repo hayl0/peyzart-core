@@ -29,7 +29,6 @@ export const GardenAnalyzer = () => {
   const startAnalysis = () => {
     setIsAnalyzing(true);
     setResults(null);
-    // Simulate AI Analysis process
     setTimeout(() => {
       setIsAnalyzing(false);
       setResults({
@@ -42,7 +41,7 @@ export const GardenAnalyzer = () => {
           'Çim boyunu 4cm seviyesinde tutun.'
         ]
       });
-    }, 4000);
+    }, 800);
   };
 
   return (
@@ -125,7 +124,7 @@ export const GardenAnalyzer = () => {
             className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-primary/5"
           >
             {/* Health Score */}
-            <div className="p-8 bg-nature-mesh rounded-3xl border border-primary/10 text-center space-y-4 shadow-sm">
+            <div className="p-8 bg-[#f5f7ee] rounded-3xl border border-primary/10 text-center space-y-4 shadow-sm">
                <div className="relative inline-flex items-center justify-center">
                   <svg className="w-24 h-24 transform -rotate-90">
                     <circle cx="48" cy="48" r="40" stroke="#E8F5E9" strokeWidth="8" fill="transparent" />

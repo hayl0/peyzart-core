@@ -43,7 +43,7 @@ export const SecureCheckout: React.FC<CheckoutProps> = ({
       hapticSuccess();
       setStep('success');
       onSuccess?.();
-    }, 2400);
+    }, 400);
   };
 
   return (

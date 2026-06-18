@@ -60,7 +60,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-nature-bg flex items-center justify-center p-6">
+    <div className="min-h-screen bg-nature-bg flex items-center justify-center p-4 md:p-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -68,7 +68,7 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="logo-gradient text-[42px]">Peyzart</div>
+          <div className="logo-gradient text-[36px] md:text-[48px]">Peyzart</div>
           <div className="w-[60px] h-[3px] bg-gradient-to-r from-bright-green to-lime rounded-full mx-auto mt-3" />
           <p className="text-[#888] text-sm mt-3">Tekrar hoş geldiniz 👋</p>
         </div>
@@ -77,7 +77,7 @@ export default function LoginPage() {
         <div className="flex bg-nature-bg rounded-[12px] p-1 mb-6">
           <button
             onClick={() => setRole('customer')}
-            className={`flex-1 text-center py-2.5 text-sm font-semibold rounded-[10px] transition-all ${
+            className={`flex-1 text-center py-3 text-sm font-semibold rounded-[10px] transition-all ${
               role === 'customer'
                 ? 'bg-white text-peyzart-green shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
                 : 'text-[#999] hover:text-[#666]'
