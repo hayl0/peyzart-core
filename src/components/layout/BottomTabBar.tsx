@@ -2,7 +2,6 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Home, Compass, Heart, Package, User } from 'lucide-react';
 
 const TABS = [
@@ -27,13 +26,6 @@ export default function BottomTabBar() {
               href={href}
               className="relative flex flex-col items-center gap-0.5 min-w-0 px-2"
             >
-              {isActive && (
-                <motion.div
-                  layoutId="tab-indicator"
-                  className="absolute -top-0.5 w-8 h-[3px] bg-bright-green rounded-full"
-                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                />
-              )}
               <Icon
                 size={22}
                 className={isActive ? 'text-bright-green' : 'text-[var(--theme-text-muted)]'}
