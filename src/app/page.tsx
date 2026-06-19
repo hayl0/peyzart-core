@@ -80,6 +80,39 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Service Showcase - Carousel */}
+      <section className="py-16 md:py-24 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-dark-forest mb-3">Hizmetlerimiz</h2>
+            <p className="text-dark-forest/60">Profesyonel peyzaj çözümleri</p>
+          </div>
+
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none"
+            style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+            {[
+              { title: 'Çim Bakımı', desc: 'Düzenli çim biçme, gübreleme ve havalandırma', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&q=80', gradient: 'from-bright-green to-medium-green' },
+              { title: 'Peyzaj Tasarımı', desc: 'Bahçenize özel modern ve klasik tasarımlar', img: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&q=80', gradient: 'from-medium-green to-dark-forest' },
+              { title: 'Sulama Sistemleri', desc: 'Otomatik sulama, damlama ve yağmurlama', img: 'https://images.unsplash.com/photo-1622389049353-032e6cd79c8c?w=400&q=80', gradient: 'from-bright-green to-lime' },
+              { title: 'Ağaç Budama', desc: 'Profesyonel ağaç ve çalı budama hizmeti', img: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&q=80', gradient: 'from-dark-forest to-medium-green' },
+              { title: 'İlaçlama', desc: 'Zararlılara karşı bitki koruma ve ilaçlama', img: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&q=80', gradient: 'from-lime to-bright-green' },
+              { title: 'Bahçe Düzenleme', desc: 'Bahçenizi yeniden şekillendirin, taş ve ahşap işleri', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&q=80', gradient: 'from-medium-green to-bright-green' },
+            ].map((s, i) => (
+              <div key={i} className="snap-start shrink-0 w-[280px] md:w-[320px] nature-card overflow-hidden group">
+                <div className="h-40 md:h-48 bg-cover bg-center relative"
+                  style={{ backgroundImage: `url(${s.img})` }}>
+                  <div className={`absolute inset-0 bg-gradient-to-t ${s.gradient} opacity-60 group-hover:opacity-70 transition-opacity`} />
+                </div>
+                <div className="p-5">
+                  <h3 className="font-bold text-dark-forest text-base mb-1">{s.title}</h3>
+                  <p className="text-sm text-dark-forest/60 leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section className="bg-white/60 border-t border-nature-border">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-20">

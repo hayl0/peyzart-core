@@ -57,10 +57,12 @@ export default function LandscaperRegisterPage() {
       setIsSubmitted(true)
       setTimeout(() => router.push('/landscaper/dashboard'), 3000)
     } catch (err) {
-      const e = err as { code?: string }
+      const e = err as { code?: string; message?: string }
       const msg =
         e.code === 'auth/email-already-in-use' ? 'Bu e-posta zaten kayıtlı' :
         e.code === 'auth/weak-password' ? 'Şifre çok zayıf' :
+        e.code === 'auth/configuration-not-found' ? 'Firebase yapılandırması eksik - lütfen yöneticinize başvurun' :
+        e.message?.includes('Firebase not initialized') ? 'Kimlik doğrulama servisine bağlanılamıyor. Lütfen daha sonra tekrar deneyin.' :
         'Kayıt olurken bir hata oluştu'
       setError(msg)
     } finally {
