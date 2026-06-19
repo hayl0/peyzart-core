@@ -43,7 +43,7 @@ export default function CustomerHomePage() {
   };
 
   useEffect(() => {
-    loadData();
+    queueMicrotask(() => loadData());
   }, []);
 
   return (

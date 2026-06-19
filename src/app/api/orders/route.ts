@@ -43,8 +43,9 @@ export const POST = async (request: Request) => {
     });
 
     return successResponse({ order }, { status: 201 });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };
 
@@ -58,7 +59,7 @@ export const GET = async (request: Request) => {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const where: any = { customerId: user.id };
+    const where: Record<string, unknown> = { customerId: user.id };
     if (status) where.status = status;
 
     const [orders, total] = await Promise.all([
@@ -89,7 +90,8 @@ export const GET = async (request: Request) => {
       orders: orderList,
       pagination: { page, totalPages: Math.ceil(total / limit), total },
     });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

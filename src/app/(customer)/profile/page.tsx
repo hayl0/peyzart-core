@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Shield, LogOut, CheckCircle, XCircle, X } from 'lucide-react';
+import { User, Mail, Phone, LogOut, CheckCircle, XCircle, X } from 'lucide-react';
 import { api } from '@/lib/api-client';
 
 const TABS = ['Bilgiler', 'Adresler', 'Güvenlik'];

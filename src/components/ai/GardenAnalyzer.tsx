@@ -4,14 +4,21 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Camera, Upload, Sparkles, 
-  Sprout, Droplets, Sun, AlertTriangle, 
+  Sprout, AlertTriangle, 
   ChevronRight, RefreshCcw, CheckCircle2
 } from 'lucide-react';
+
+interface AnalysisResult {
+  health: number;
+  plants: string[];
+  issues: string[];
+  recommendations: string[];
+}
 
 export const GardenAnalyzer = () => {
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [results, setResults] = useState<any | null>(null);
+  const [results, setResults] = useState<AnalysisResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +96,7 @@ export const GardenAnalyzer = () => {
               animate={{ opacity: 1 }}
               className="relative w-full h-full"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={image} className="w-full h-full object-cover" alt="Garden" />
               
               {/* Scanning Laser Animation */}

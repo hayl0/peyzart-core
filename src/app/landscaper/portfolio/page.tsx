@@ -141,6 +141,7 @@ export default function PortfolioPage() {
           {filteredItems.map(item => (
             <div key={item.id}
               className="relative aspect-square rounded-[18px] border border-white/[0.08] overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-[1.02]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={item.url} alt={item.description}
                 className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />

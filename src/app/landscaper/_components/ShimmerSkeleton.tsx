@@ -31,7 +31,7 @@ export default function ShimmerSkeleton({ variant = 'card', count = 1 }: Shimmer
         </div>
         <div className="flex gap-[6px] h-[48px] items-end">
           {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="flex-1 bg-white/5 rounded-t-[4px]" style={{ height: `${30 + Math.random() * 70}%` }} />
+            <div key={i} className="flex-1 bg-white/5 rounded-t-[4px]" style={{ height: `${30 + (i * 17 + 5) % 71}%` }} />
           ))}
         </div>
       </div>

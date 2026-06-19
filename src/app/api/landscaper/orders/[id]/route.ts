@@ -19,7 +19,8 @@ export const GET = async (request: Request, context: { params: Promise<{ id: str
     if (!order) return errorResponse('Order not found', 404);
 
     return successResponse({ order });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

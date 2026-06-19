@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/lib/api/auth';
 
-export const GET = async (request: Request) => {
+export const GET = async () => {
   try {
     const services = await prisma.landscaperService.findMany({
       select: { name: true },
@@ -10,7 +10,8 @@ export const GET = async (request: Request) => {
     });
 
     return successResponse({ categories: services.map(s => s.name) });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

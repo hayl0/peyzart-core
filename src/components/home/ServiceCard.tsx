@@ -16,6 +16,7 @@ interface ServiceCardProps {
   featured?: boolean;
 }
 
+/* eslint-disable @next/next/no-img-element */
 export default function ServiceCard({
   id,
   name,

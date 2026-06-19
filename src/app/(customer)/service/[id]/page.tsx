@@ -68,6 +68,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         <div className="h-48 md:h-64 rounded-[24px] overflow-hidden mb-6 bg-[var(--theme-border)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={service.image} alt="" className="w-full h-full object-cover" />
         </div>
 
@@ -100,6 +101,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             {service.images.length > 0
               ? service.images.map((img, i) => (
                   <div key={i} className="w-24 h-24 md:w-28 md:h-28 rounded-[16px] overflow-hidden flex-shrink-0 bg-[var(--theme-border)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </div>
                 ))

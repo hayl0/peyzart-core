@@ -24,7 +24,7 @@ export const GET = async (request: Request) => {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const where: any = { landscaperId: profile.id };
+    const where: Record<string, unknown> = { landscaperId: profile.id };
     if (tab !== 'Tümü' && STATUS_MAP[tab]) {
       where.status = STATUS_MAP[tab];
     }
@@ -45,7 +45,8 @@ export const GET = async (request: Request) => {
     const totalPages = Math.ceil(total / limit);
 
     return successResponse({ orders, pagination: { page, totalPages, total } });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

@@ -35,7 +35,7 @@ export default function HeroSection() {
         <div className="relative z-10 px-4 py-16 md:py-24 lg:py-32 max-w-4xl mx-auto text-center w-full">
           <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 mb-6">
             <Sparkles size={12} className="text-lime" />
-            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Türkiye'nin Peyzaj Platformu</span>
+            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Türkiye&apos;nin Peyzaj Platformu</span>
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 leading-[1.1] tracking-tight">

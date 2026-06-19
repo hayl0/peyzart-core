@@ -78,7 +78,7 @@ export default function LandscaperEarningsPage() {
   };
 
   useEffect(() => {
-    fetchEarnings(1);
+    queueMicrotask(() => fetchEarnings(1));
   }, []);
 
   const handlePageChange = (newPage: number) => {

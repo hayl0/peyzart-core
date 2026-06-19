@@ -4,6 +4,7 @@ let adminAuthInstance: Auth | null = null;
 let initialized = false;
 
 function undynamic(mod: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return Function('return import("' + mod + '")')() as Promise<any>;
 }
 

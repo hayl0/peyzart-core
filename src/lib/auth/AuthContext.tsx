@@ -29,8 +29,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const noop = async () => {};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<'customer' | 'landscaper' | 'admin' | null>(null);
@@ -38,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!auth) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }
@@ -74,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async (role: 'customer' | 'landscaper') => {
     if (!auth) throw new Error('Firebase not initialized');
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
+    await signInWithPopup(auth, provider);
     localStorage.setItem('peyzart_user_role', role);
     setUserRole(role);
   };

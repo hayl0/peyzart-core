@@ -8,15 +8,14 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, Lock, CreditCard, 
-  CheckCircle2, AlertCircle, ArrowRight,
-  ShieldAlert
+  CheckCircle2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { hapticImpactLight, hapticSuccess, hapticError } from '@/lib/haptics';
+import { hapticImpactLight, hapticSuccess } from '@/lib/haptics';
 import { LiquidButtonBlack } from '@/components/features/dashboard/LiquidUI';
 
 interface CheckoutProps {
@@ -31,8 +30,9 @@ export const SecureCheckout: React.FC<CheckoutProps> = ({
   onSuccess 
 }) => {
   const [step, setStep] = useState<'details' | 'processing' | 'success'>('details');
-  const [cardNumber, setCardNumber] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+
+  const [transactionId] = useState(() => `#PZ-${Math.random().toString(36).substr(2, 9).toUpperCase()}`);
 
   const handlePayment = async () => {
     hapticImpactLight();
@@ -91,7 +91,7 @@ export const SecureCheckout: React.FC<CheckoutProps> = ({
                     className="bg-transparent border-none outline-none text-white font-mono text-lg tracking-wider w-full placeholder:text-white/10"
                     onFocus={() => { setIsFocused(true); hapticImpactLight(); }}
                     onBlur={() => setIsFocused(false)}
-                    onChange={(e) => setCardNumber(e.target.value)}
+                    onChange={() => {}}
                   />
                   <div className="flex gap-2">
                     <div className="w-8 h-5 bg-white/10 rounded-md" />
@@ -178,7 +178,7 @@ export const SecureCheckout: React.FC<CheckoutProps> = ({
             <div>
               <h3 className="text-3xl font-black tracking-tighter mb-2">Payment Confirmed</h3>
               <p className="text-sm text-white/40 font-medium max-w-xs mx-auto">
-                Transaction ID: #PZ-{Math.random().toString(36).substr(2, 9).toUpperCase()}
+                Transaction ID: {transactionId}
               </p>
             </div>
             <motion.button 

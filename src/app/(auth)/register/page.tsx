@@ -51,13 +51,14 @@ export default function RegisterPage() {
     try {
       await signUp(email, password, name, role);
       router.push('/verify');
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as { code?: string };
       const msg =
-        err.code === 'auth/email-already-in-use'
+        error.code === 'auth/email-already-in-use'
           ? 'Bu e-posta zaten kayıtlı'
-          : err.code === 'auth/weak-password'
+          : error.code === 'auth/weak-password'
           ? 'Şifre çok zayıf'
-          : err.code === 'auth/invalid-email'
+          : error.code === 'auth/invalid-email'
           ? 'Geçersiz e-posta formatı'
           : 'Kayıt olurken bir hata oluştu';
       setError(msg);

@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Droplets, Wind, Zap, Thermometer } from 'lucide-react';
+import { Droplets, Wind, Zap, Thermometer } from 'lucide-react';
 
 const STATUS_DATA = [
   { id: 1, name: "№1", health: 96, water: 80, ph: 6.5, nutrient: 85, temp: 24 },

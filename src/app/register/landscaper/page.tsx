@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sprout, ChevronRight, ChevronLeft, 
   User, Briefcase, FileText, Camera, 
-  CheckCircle2, AlertCircle, Upload, MapPin
+  CheckCircle2, AlertCircle, Upload
 } from 'lucide-react';
 import Link from 'next/link';
 

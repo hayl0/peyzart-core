@@ -47,16 +47,6 @@ const MONTHS_TR = [
   'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
 ];
 
-const EN_TO_TR: Record<string, string> = {
-  monday: 'Pzt',
-  tuesday: 'Sal',
-  wednesday: 'Çar',
-  thursday: 'Per',
-  friday: 'Cum',
-  saturday: 'Cmt',
-  sunday: 'Paz',
-};
-
 const TR_TO_EN: Record<string, string> = {
   'Pzt': 'monday',
   'Sal': 'tuesday',
@@ -181,8 +171,7 @@ export default function CalendarPage() {
   }, [viewMonth, viewYear]);
 
   useEffect(() => {
-    setStatus('loading');
-    refresh();
+    queueMicrotask(() => refresh());
   }, [refresh]);
 
   const calendarDays = useMemo(

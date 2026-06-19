@@ -17,7 +17,8 @@ export const PATCH = async (request: Request) => {
     }
 
     return successResponse({ updated: true });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

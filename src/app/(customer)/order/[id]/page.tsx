@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, User, MapPin, Calendar, Clock, CheckCircle } from 'lucide-react';
+import { ChevronLeft, MapPin, CheckCircle } from 'lucide-react';
 import { api } from '@/lib/api-client';
 
 interface TimelineStep {

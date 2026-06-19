@@ -129,7 +129,8 @@ export default function OdemePage() {
               
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-[14px] overflow-hidden bg-[var(--theme-border)] shrink-0">
-                  <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&q=80" className="w-full h-full object-cover" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=200&q=80" alt="" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-[var(--theme-text)]">Bahçe Sanatı</p>

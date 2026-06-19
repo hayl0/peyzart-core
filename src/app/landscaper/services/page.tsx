@@ -78,7 +78,7 @@ export default function ServicesPage() {
   };
 
   useEffect(() => {
-    fetchData();
+    queueMicrotask(() => fetchData());
   }, []);
 
   const toggleService = async (id: string) => {

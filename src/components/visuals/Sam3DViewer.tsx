@@ -13,22 +13,23 @@ export const Sam3DViewer = () => {
   const [points, setPoints] = useState<{x: number, y: number}[]>([]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
     // --- Core Scene Setup ---
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ReinhardToneMapping;
-    containerRef.current.appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
     // --- Post-Processing (The Secret Sauce) ---
     const renderScene = new RenderPass(scene, camera);
     const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(containerRef.current.clientWidth, containerRef.current.clientHeight),
+      new THREE.Vector2(container.clientWidth, container.clientHeight),
       1.5, 0.4, 0.85
     );
     bloomPass.threshold = 0.2;
@@ -92,7 +93,7 @@ export const Sam3DViewer = () => {
     const mouse = new THREE.Vector2();
 
     const handleClick = (event: MouseEvent) => {
-      const rect = containerRef.current?.getBoundingClientRect();
+      const rect = container?.getBoundingClientRect();
       if (!rect) return;
 
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -120,7 +121,7 @@ export const Sam3DViewer = () => {
       }
     };
 
-    containerRef.current.addEventListener('mousedown', handleClick);
+    container.addEventListener('mousedown', handleClick);
 
     // --- Render Loop ---
     const animate = () => {
@@ -131,9 +132,9 @@ export const Sam3DViewer = () => {
     animate();
 
     const handleResize = () => {
-      if (!containerRef.current) return;
-      const width = containerRef.current.clientWidth;
-      const height = containerRef.current.clientHeight;
+      if (!container) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
@@ -142,9 +143,9 @@ export const Sam3DViewer = () => {
     window.addEventListener('resize', handleResize);
 
     return () => {
-      containerRef.current?.removeEventListener('mousedown', handleClick);
+      container?.removeEventListener('mousedown', handleClick);
       window.removeEventListener('resize', handleResize);
-      if (containerRef.current) containerRef.current.removeChild(renderer.domElement);
+      if (container) container.removeChild(renderer.domElement);
     };
   }, []);
 

@@ -17,7 +17,7 @@ export const GET = async (request: Request) => {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const orderBy: any = sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
+    const orderBy: Record<string, string> = sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
 
     const [reviews, totalReviews, ratingAgg] = await Promise.all([
       prisma.review.findMany({
@@ -62,7 +62,8 @@ export const GET = async (request: Request) => {
       reviews: reviewList,
       pagination: { page, totalPages, total: totalReviews },
     });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

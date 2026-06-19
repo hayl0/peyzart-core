@@ -20,8 +20,9 @@ export const GET = async (request: Request) => {
       notifications: { newOrder: true, payment: true, review: true, marketing: false },
       preferences: { language: 'tr', theme: 'dark' },
     });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };
 
@@ -44,7 +45,8 @@ export const PATCH = async (request: Request) => {
     });
 
     return successResponse({ profile: updated });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

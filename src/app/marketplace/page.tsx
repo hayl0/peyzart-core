@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Star, MapPin, Compass, TrendingUp, Sparkles } from 'lucide-react';
+import { Search, Star, MapPin, Compass, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api-client';
 
 interface ServiceItem {

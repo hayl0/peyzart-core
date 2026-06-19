@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Store, ClipboardList, Flag, Bell, Search, Check, X, TrendingUp, DollarSign, Leaf, UserCheck, Ban } from 'lucide-react';
+import { Users, Store, ClipboardList, Flag, Search, Check, X, TrendingUp, DollarSign, Leaf, Ban } from 'lucide-react';
 
 const TABS = [
   { id: 'overview', label: 'Genel Bakış', icon: TrendingUp },
@@ -233,7 +233,7 @@ export default function AdminDashboard() {
         {/* COMPLAINTS */}
         {tab === 'complaints' && (
           <div className="space-y-3">
-            {COMPLAINTS.map((c, i) => (
+            {COMPLAINTS.map((c) => (
               <div key={c.id} className="bg-white/5 border border-white/10 rounded-[16px] p-4 md:p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">

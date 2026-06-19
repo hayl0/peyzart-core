@@ -37,6 +37,7 @@ export default function FeaturedSection() {
                 <Link href={`/service/${item.id}`} className="min-w-[260px] md:min-w-0 snap-start block group">
                   <div className="bg-white rounded-[20px] border border-[var(--theme-border)] overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <div className="relative h-[140px] overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={item.image} alt={item.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />

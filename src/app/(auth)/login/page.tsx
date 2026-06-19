@@ -31,15 +31,16 @@ export default function LoginPage() {
     try {
       await signIn(email, password, role);
       // Router will redirect via AuthContext's onAuthStateChanged
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as { code?: string };
       const msg =
-        err.code === 'auth/user-not-found'
+        error.code === 'auth/user-not-found'
           ? 'Bu e-posta ile kayıtlı kullanıcı bulunamadı'
-          : err.code === 'auth/wrong-password'
+          : error.code === 'auth/wrong-password'
           ? 'Şifre hatalı'
-          : err.code === 'auth/invalid-email'
+          : error.code === 'auth/invalid-email'
           ? 'Geçersiz e-posta formatı'
-          : err.code === 'auth/invalid-credential'
+          : error.code === 'auth/invalid-credential'
           ? 'E-posta veya şifre hatalı'
           : 'Giriş yapılırken bir hata oluştu';
       setError(msg);
@@ -53,7 +54,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithGoogle(role);
-    } catch (err: any) {
+    } catch {
       setError('Google ile giriş başarısız oldu');
     } finally {
       setIsLoading(false);

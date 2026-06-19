@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Sparkles, Camera, RefreshCw, CheckCircle2, AlertTriangle, ChevronRight } from 'lucide-react';
-import * as animeModule from 'animejs';
-const anime = (animeModule as any).default || animeModule;
+import * as animeModule from 'animejs'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const anime = (animeModule as any).default ?? animeModule
 
 export const AIInsightsCard = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);

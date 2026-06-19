@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { 
   Menu, X, User, LogOut, Settings, Home, 
-  Search, Calendar, CreditCard, MapPin, Star,
+  Search, Calendar, CreditCard, Star,
   ChevronDown, Bell
 } from 'lucide-react';
 

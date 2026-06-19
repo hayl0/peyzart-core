@@ -2,7 +2,7 @@
 
 import { GardenScene } from '@/components/visuals/GardenScene';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
-import { Clock, CheckCircle2, MoreHorizontal } from 'lucide-react';
+import { Clock, CheckCircle2 } from 'lucide-react';
 
 const MINI_DATA = [
   { time: 10, val: 5 },
@@ -83,11 +83,19 @@ export const ActivitySidebar = () => {
   );
 };
 
-const ScheduleItem = ({ title, time, status, statusColor, icon }: any) => (
+interface ScheduleItemProps {
+  title: string;
+  time: string;
+  status: string;
+  statusColor: string;
+  icon?: React.ReactNode;
+}
+
+const ScheduleItem = ({ title, time, status, statusColor, icon }: ScheduleItemProps) => (
   <div className="flex flex-col gap-1 p-4 rounded-3xl bg-greenish-bg/20 border border-white/50 hover:bg-white/40 transition-colors cursor-pointer group">
     <div className="flex justify-between items-start">
         <div className="space-y-1">
-            <h4 className="text-sm font-black text-greenish-dark italic">{title}</h4>
+            <h4 className="text-sm font-black text-greenish-dark italic flex items-center gap-2">{icon}{title}</h4>
             <div className="flex items-center gap-2 text-[10px] font-bold text-greenish-dark/40 uppercase tracking-widest">
                 <Clock className="w-3 h-3" />
                 {time}

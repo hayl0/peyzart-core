@@ -6,9 +6,9 @@ export const iyzico = new Iyzipay({
     uri: process.env.IYZICO_URI || 'https://sandbox-api.iyzipay.com'
 });
 
-export const createIyzicoPayment = (data: any) => {
-    return new Promise((resolve, reject) => {
-        iyzico.payment.create(data, (err: any, result: any) => {
+export const createIyzicoPayment = (data: Record<string, unknown>) => {
+    return new Promise<Record<string, unknown>>((resolve, reject) => {
+        iyzico.payment.create(data, (err: Error | null, result: Record<string, unknown>) => {
             if (err) reject(err);
             else resolve(result);
         });

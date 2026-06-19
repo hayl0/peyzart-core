@@ -102,7 +102,7 @@ export default function LandscaperReviewsPage() {
   }, [sort, page]);
 
   useEffect(() => {
-    fetchReviews();
+    queueMicrotask(() => fetchReviews());
   }, [fetchReviews]);
 
   const handleReply = async (reviewId: string) => {

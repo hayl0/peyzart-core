@@ -24,13 +24,6 @@ const API_KEY_MAP: Record<NotificationKey, string> = {
   marketing: 'marketing',
 };
 
-const KEY_FROM_API: Record<string, NotificationKey> = {
-  newOrder: 'newOrders',
-  payment: 'payments',
-  review: 'comments',
-  marketing: 'marketing',
-};
-
 const DEFAULT_NOTIFICATIONS: Record<NotificationKey, boolean> = {
   newOrders: true,
   payments: true,
@@ -79,7 +72,7 @@ export default function LandscaperSettingsPage() {
   };
 
   useEffect(() => {
-    fetchData();
+    queueMicrotask(() => fetchData());
   }, []);
 
   const handleSaveProfile = async () => {

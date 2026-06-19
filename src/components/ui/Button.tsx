@@ -39,8 +39,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       disabled,
       onClick,
-      type = 'button',
-      ...props
+      type = 'button'
     },
     ref
   ) => {

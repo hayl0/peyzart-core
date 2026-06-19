@@ -5,6 +5,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_place
   typescript: true,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createStripeCheckoutSession = async (items: any[], orderId: string) => {
   return await stripe.checkout.sessions.create({
     payment_method_types: ['card'],

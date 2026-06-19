@@ -2,8 +2,9 @@
 
 import { ShieldCheck, BarChart3, TreeDeciduous, Award, ChevronRight, Info } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import * as animeModule from 'animejs';
-const anime = (animeModule as any).default || animeModule;
+import * as animeModule from 'animejs'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const anime = (animeModule as any).default ?? animeModule
 
 export const AssetPassport = () => {
   const scoreRef = useRef<HTMLSpanElement>(null);

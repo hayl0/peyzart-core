@@ -45,7 +45,7 @@ export default function LandscaperDashboard() {
   };
 
   useEffect(() => {
-    fetchData();
+    queueMicrotask(() => fetchData());
   }, []);
 
   const kpiCards = data ? [

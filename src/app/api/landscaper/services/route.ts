@@ -14,8 +14,9 @@ export const GET = async (request: Request) => {
     if (!profile) return errorResponse('Landscaper profile not found', 404);
 
     return successResponse({ services: profile.services });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };
 
@@ -46,7 +47,8 @@ export const POST = async (request: Request) => {
     });
 
     return successResponse({ service }, { status: 201 });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

@@ -9,7 +9,7 @@ export const GET = async (request: Request) => {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (search) where.name = { contains: search, mode: 'insensitive' };
     if (category) where.name = category;
 
@@ -54,7 +54,8 @@ export const GET = async (request: Request) => {
       total,
       categories: categoryRows.map(c => c.name),
     });
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };

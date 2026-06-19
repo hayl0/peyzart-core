@@ -90,7 +90,7 @@ export default function LandscaperOrdersPage() {
   }, [tab, page]);
 
   useEffect(() => {
-    fetchOrders();
+    queueMicrotask(() => fetchOrders());
   }, [fetchOrders]);
 
   const handleTabChange = (newTab: string) => {
@@ -141,7 +141,7 @@ export default function LandscaperOrdersPage() {
                       <span className="flex items-center gap-1"><Calendar size={12} />{formatDate(order.serviceDate)} {formatTime(order.serviceDate)}</span>
                       <span className="flex items-center gap-1"><MapPin size={12} className="shrink-0" />{order.address}</span>
                     </div>
-                    {order.notes && <p className="text-xs text-white/30 italic mt-2">"{order.notes}"</p>}
+                    {order.notes && <p className="text-xs text-white/30 italic mt-2">&quot;{order.notes}&quot;</p>}
                   </div>
                   <div className="flex items-center gap-3 md:flex-col md:items-end">
                     <span className="text-lg font-extrabold text-white">₺{order.totalPrice}</span>

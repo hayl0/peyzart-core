@@ -15,8 +15,9 @@ export const GET = async (request: Request) => {
 
     const prefs = (profile?.notificationPrefs as typeof DEFAULT_PREFS) ?? DEFAULT_PREFS;
     return successResponse(prefs);
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };
 
@@ -33,7 +34,8 @@ export const PATCH = async (request: Request) => {
     });
 
     return successResponse(body);
-  } catch (e: any) {
-    return errorResponse(e.message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Internal error';
+    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
   }
 };
