@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Bell, ChevronRight, Moon, Sun, Monitor, LogOut, Trash2, Info } from 'lucide-react'
 import { useAuth } from '@/lib/auth/AuthContext'
@@ -42,10 +42,12 @@ export default function SettingsPage() {
     newServices: true,
   })
 
-  useEffect(() => {
-    setTheme(getStoredTheme())
-    setNotifications(prev => ({ ...prev, ...getStoredNotifs() }))
-  }, [])
+  useState(() => {
+    queueMicrotask(() => {
+      setTheme(getStoredTheme())
+      setNotifications(prev => ({ ...prev, ...getStoredNotifs() }))
+    })
+  })
 
   const applyTheme = (t: ThemeType) => {
     setTheme(t)
