@@ -55,11 +55,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  const setSessionCookie = async () => {
+    if (!auth?.currentUser) return;
+    const idToken = await auth.currentUser.getIdToken();
+    await fetch('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    }).catch(() => {});
+  };
+
+  const clearSessionCookie = async () => {
+    await fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {});
+  };
+
   const signIn = async (email: string, password: string, role: 'customer' | 'landscaper' = 'customer') => {
     if (!auth) throw new Error('Firebase not initialized');
     await signInWithEmailAndPassword(auth, email, password);
     localStorage.setItem('peyzart_user_role', role);
     setUserRole(role);
+    await setSessionCookie();
   };
 
   const signUp = async (email: string, password: string, name: string, role: 'customer' | 'landscaper') => {
@@ -68,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await updateProfile(result.user, { displayName: name });
     localStorage.setItem('peyzart_user_role', role);
     setUserRole(role);
+    await setSessionCookie();
   };
 
   const signInWithGoogle = async (role: 'customer' | 'landscaper') => {
@@ -76,12 +92,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithPopup(auth, provider);
     localStorage.setItem('peyzart_user_role', role);
     setUserRole(role);
+    await setSessionCookie();
   };
 
   const logout = async () => {
     if (!auth) return;
     await signOut(auth);
     localStorage.removeItem('peyzart_user_role');
+    await clearSessionCookie();
   };
 
   const resetPassword = async (email: string) => {

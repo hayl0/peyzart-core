@@ -1,23 +1,46 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Mail, Phone, LogOut, CheckCircle, XCircle, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { User, Mail, Phone, LogOut, CheckCircle, XCircle, X, Settings } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 const TABS = ['Bilgiler', 'Adresler', 'Güvenlik'];
 
-const SAVED_ADDRESSES = [
-  { id: 1, type: 'Ev', address: 'Gümüşsuyu Mah. Çevre Yolu No:45, İstanbul', default: true },
-  { id: 2, type: 'İş', address: 'Ataköy Mah. Londra Asfaltı No:12, İstanbul', default: false },
-];
+interface Address {
+  id: number;
+  type: string;
+  address: string;
+  default: boolean;
+}
 
 export default function ProfilePage() {
+  const { user: firebaseUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('Bilgiler');
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState('Ahmet Yılmaz');
-  const [email] = useState('ahmet@example.com');
-  const [phone, setPhone] = useState('+90 555 123 4567');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (firebaseUser) {
+      setName(firebaseUser.displayName || '')
+      setEmail(firebaseUser.email || '')
+      setPhone(firebaseUser.phoneNumber || '')
+    }
+    api.get<{ user: { name: string; email: string; phone: string | null; address: string | null } }>('/api/profile')
+      .then(r => {
+        setName(r.user.name || '')
+        setEmail(r.user.email)
+        setPhone(r.user.phone || '')
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [firebaseUser])
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -34,7 +57,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.patch('/api/landscaper/profile', { name, phone });
+      await api.patch('/api/profile', { name, phone });
       showToast('Profil güncellendi', 'success');
       setEditing(false);
     } catch {
@@ -63,10 +86,23 @@ export default function ProfilePage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--theme-bg)] flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-bright-green/30 border-t-bright-green rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[var(--theme-bg)]">
       <div className="max-w-2xl mx-auto p-4 md:p-6 pb-24">
-        <h1 className="text-2xl font-bold text-[var(--theme-text)] mb-6">Profilim</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-[var(--theme-text)]">Profilim</h1>
+          <Link href="/settings" className="p-2 rounded-xl text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)] hover:bg-[var(--theme-card)] transition-all">
+            <Settings size={20} />
+          </Link>
+        </div>
 
         {/* Profile Card */}
         <div className="nature-card p-6 text-center mb-6">
@@ -135,22 +171,28 @@ export default function ProfilePage() {
         {/* Adresler */}
         {activeTab === 'Adresler' && (
           <div className="space-y-3">
-            {SAVED_ADDRESSES.map(addr => (
-              <div key={addr.id} className={`nature-card p-4 ${addr.default ? 'border-bright-green/40' : ''}`}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-sm text-[var(--theme-text)]">{addr.type}</span>
-                  {addr.default && <span className="text-[10px] font-semibold text-bright-green bg-bright-green/10 px-2 py-0.5 rounded-full">Varsayılan</span>}
-                </div>
-                <p className="text-xs text-[var(--theme-text-secondary)] mb-2">{addr.address}</p>
-                <div className="flex gap-3">
-                  <button className="text-xs font-semibold text-bright-green hover:underline">Düzenle</button>
-                  <button className="text-xs font-semibold text-red-500 hover:underline">Sil</button>
-                </div>
+            {addresses.length === 0 ? (
+              <div className="nature-card p-6 text-center">
+                <p className="text-sm text-[var(--theme-text-secondary)] mb-3">Kayıtlı adres bulunamadı</p>
+                <button className="w-full py-3 border border-dashed border-[var(--theme-border)] rounded-[16px] text-sm font-semibold text-[var(--theme-text-secondary)] hover:border-bright-green/40 hover:text-bright-green transition-all">
+                  + Yeni Adres Ekle
+                </button>
               </div>
-            ))}
-            <button className="w-full py-3 border border-dashed border-[var(--theme-border)] rounded-[16px] text-sm font-semibold text-[var(--theme-text-secondary)] hover:border-bright-green/40 hover:text-bright-green transition-all">
-              + Yeni Adres Ekle
-            </button>
+            ) : (
+              addresses.map(addr => (
+                <div key={addr.id} className={`nature-card p-4 ${addr.default ? 'border-bright-green/40' : ''}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-sm text-[var(--theme-text)]">{addr.type}</span>
+                    {addr.default && <span className="text-[10px] font-semibold text-bright-green bg-bright-green/10 px-2 py-0.5 rounded-full">Varsayılan</span>}
+                  </div>
+                  <p className="text-xs text-[var(--theme-text-secondary)] mb-2">{addr.address}</p>
+                  <div className="flex gap-3">
+                    <button className="text-xs font-semibold text-bright-green hover:underline">Düzenle</button>
+                    <button className="text-xs font-semibold text-red-500 hover:underline">Sil</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         )}
 
@@ -173,7 +215,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="nature-card p-5 border-red-200">
-              <button className="flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors w-full">
+              <button onClick={logout} className="flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors w-full">
                 <LogOut size={16} />
                 Oturumu Kapat
               </button>

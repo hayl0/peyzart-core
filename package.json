@@ -10,13 +10,18 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "format": "prettier --write \"src/**/*.{ts,tsx,md,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,md,json}\"",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "mobile:dev": "CAP_SERVER_URL=http://localhost:3000 npx cap sync && npx cap run ios",
+    "mobile:build": "next build && CAP_SERVER_URL=https://peyzart-core-gvizdors-projects.vercel.app npx cap sync && npx cap copy",
+    "mobile:open:ios": "npx cap open ios",
+    "mobile:open:android": "npx cap open android"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.11.1",
     "@capacitor/android": "^8.3.0",
     "@capacitor/core": "^8.3.0",
     "@capacitor/haptics": "^8.0.2",
@@ -25,7 +30,6 @@
     "@capacitor/status-bar": "^8.0.2",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.7.0",
-    "@react-google-maps/api": "^2.20.8",
     "@stripe/stripe-js": "^9.1.0",
     "@types/three": "^0.183.1",
     "animejs": "^4.3.6",
@@ -43,8 +47,6 @@
     "lucide-react": "^1.8.0",
     "mapbox-gl": "^3.25.0",
     "next": "16.2.3",
-    "next-auth": "^4.24.13",
-    "next-themes": "^0.4.6",
     "pg": "^8.21.0",
     "postcss": "^8.5.15",
     "react": "19.2.4",
@@ -61,8 +63,10 @@
   "devDependencies": {
     "@capacitor/cli": "^8.3.0",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/animejs": "^3.1.13",
-    "@types/bcryptjs": "^2.4.6",
     "@types/lodash": "^4.17.24",
     "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^20.19.39",
@@ -71,9 +75,11 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
+    "jsdom": "^29.1.1",
     "prisma": "^7.7.0",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

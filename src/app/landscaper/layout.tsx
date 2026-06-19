@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   LayoutDashboard, ClipboardList, Briefcase, DollarSign,
-  Calendar, Images, Star, Settings, Bell
+  Calendar, Images, Star, Settings, Bell, User
 } from 'lucide-react';
 
 const NAV = [
@@ -14,6 +14,7 @@ const NAV = [
   { href: '/landscaper/earnings', label: 'Kazançlar', icon: DollarSign },
   { href: '/landscaper/calendar', label: 'Takvim', icon: Calendar },
   { href: '/landscaper/portfolio', label: 'Portföy', icon: Images },
+  { href: '/landscaper/profile', label: 'Profilim', icon: User },
   { href: '/landscaper/reviews', label: 'Yorumlar', icon: Star },
   { href: '/landscaper/settings', label: 'Ayarlar', icon: Settings },
 ];

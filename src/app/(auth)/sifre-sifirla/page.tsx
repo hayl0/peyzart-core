@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function ForgotPasswordPage() {
+  const { resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="min-h-screen bg-nature-bg flex items-center justify-center p-4 md:p-10">
@@ -41,9 +45,27 @@ export default function ForgotPasswordPage() {
                 className="w-full bg-white border border-nature-input-border rounded-[14px] pl-11 pr-4 py-3.5 text-sm text-[#333] outline-none focus:border-bright-green/40 focus:ring-2 focus:ring-bright-green/10 transition-all" />
             </div>
 
-            <button onClick={() => setSent(true)} disabled={!email.includes('@')}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-[12px] p-3 flex items-center gap-2">
+                <AlertCircle size={14} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <button onClick={async () => {
+              setError('')
+              setLoading(true)
+              try {
+                await resetPassword(email)
+                setSent(true)
+              } catch {
+                setError('E-posta gönderilemedi. Lütfen tekrar deneyin.')
+              } finally {
+                setLoading(false)
+              }
+            }} disabled={!email.includes('@') || loading}
               className="btn-primary w-full text-sm disabled:opacity-50">
-              Sıfırlama Bağlantısı Gönder
+              {loading ? 'Gönderiliyor...' : 'Sıfırlama Bağlantısı Gönder'}
             </button>
           </div>
         )}
