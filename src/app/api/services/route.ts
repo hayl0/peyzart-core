@@ -11,12 +11,13 @@ export const GET = async (request: Request) => {
 
     const where: Record<string, unknown> = {};
     if (search) where.name = { contains: search, mode: 'insensitive' };
-    if (category) where.name = category;
+    if (category) where.category = { name: category };
 
     const [services, total, categoryRows] = await Promise.all([
       prisma.landscaperService.findMany({
         where,
         include: {
+          category: true,
           landscaperProfile: {
             include: {
               user: { select: { name: true } },

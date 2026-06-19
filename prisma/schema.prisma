@@ -110,12 +110,15 @@ model PortfolioImage {
 
 model LandscaperService {
   id                  String            @id @default(cuid())
-  name                String            // e.g., "Çim Biçme", "Budama"
+  name                String
   description         String?
-  price               Float             // Base price
-  unit                String            @default("m2") // m2, hour, fixed
+  price               Float
+  unit                String            @default("m2")
   landscaperProfileId String
   landscaperProfile   LandscaperProfile @relation(fields: [landscaperProfileId], references: [id], onDelete: Cascade)
+
+  categoryId          String?
+  category            Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 }
 
 model Order {
@@ -157,6 +160,24 @@ model Review {
   landscaper        LandscaperProfile @relation("LandscaperReviews", fields: [landscaperId], references: [id])
 
   createdAt         DateTime    @default(now())
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  image       String?
+  icon        String?
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  order       Int        @default(0)
+
+  services    LandscaperService[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model BlockedDate {

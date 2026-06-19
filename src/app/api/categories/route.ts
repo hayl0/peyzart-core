@@ -1,17 +1,13 @@
-import { prisma } from '@/lib/prisma';
-import { successResponse, errorResponse } from '@/lib/api/auth';
+import { prisma } from '@/lib/prisma'
+import { successResponse, errorResponse } from '@/lib/api/auth'
 
 export const GET = async () => {
   try {
-    const services = await prisma.landscaperService.findMany({
-      select: { name: true },
-      distinct: ['name'],
-      orderBy: { name: 'asc' },
-    });
-
-    return successResponse({ categories: services.map(s => s.name) });
+    const categories = await prisma.category.findMany({
+      orderBy: { order: 'asc' },
+    })
+    return successResponse({ categories })
   } catch (e) {
-    const message = e instanceof Error ? e.message : 'Internal error';
-    return errorResponse(message === 'UNAUTHORIZED' ? 'Unauthorized' : 'Internal error', 401);
+    return errorResponse(e instanceof Error ? e.message : 'Internal error', 500)
   }
-};
+}
