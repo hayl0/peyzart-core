@@ -66,7 +66,7 @@ export default function ServiceCard({
               />
             ))}
             <span className="text-xs font-semibold text-[var(--theme-text)] ml-1">
-              {rating.toFixed(1)}
+              {(rating ?? 0).toFixed(1)}
             </span>
             <span className="text-[11px] text-[var(--theme-text-muted)] ml-0.5">
               ({reviewCount})
@@ -79,7 +79,7 @@ export default function ServiceCard({
             </span>
             <span className="text-xs text-[var(--theme-text-secondary)] flex items-center gap-1">
               <MapPin size={10} />
-              {distance.toFixed(1)} km
+              {(distance ?? 0).toFixed(1)} km
             </span>
           </div>
         </div>

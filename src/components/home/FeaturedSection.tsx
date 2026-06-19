@@ -55,13 +55,13 @@ export default function FeaturedSection() {
                           <Star key={star} size={11}
                             className={star <= Math.floor(item.rating) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-200'} />
                         ))}
-                        <span className="text-xs font-semibold text-[var(--theme-text)] ml-1">{item.rating.toFixed(1)}</span>
+                        <span className="text-xs font-semibold text-[var(--theme-text)] ml-1">{(item.rating ?? 0).toFixed(1)}</span>
                         <span className="text-[11px] text-[var(--theme-text-muted)] ml-0.5">({item.reviewCount})</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="font-extrabold text-lg text-[var(--theme-text)]">₺{item.price}</span>
                         <span className="text-xs text-[var(--theme-text-secondary)] flex items-center gap-1">
-                          <MapPin size={10} /> {item.distance.toFixed(1)} km
+                          <MapPin size={10} /> {(item.distance ?? 0).toFixed(1)} km
                         </span>
                       </div>
                     </div>

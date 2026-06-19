@@ -171,7 +171,7 @@ export default function MapboxMap({ landscapers, onSelect, selectedId }: MapboxM
                 ₺{popupInfo.price}
               </span>
               <span className="text-xs text-gray-400">
-                ★ {popupInfo.rating.toFixed(1)}
+                ★ {(popupInfo.rating ?? 0).toFixed(1)}
               </span>
             </div>
           </div>

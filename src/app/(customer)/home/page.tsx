@@ -34,7 +34,15 @@ export default function CustomerHomePage() {
       api.get<{ experts: number; customers: number; satisfaction: number }>('/api/stats').catch(() => ({ experts: 0, customers: 0, satisfaction: 98 })),
     ]).then(([servicesData]) => {
       const mapped = servicesData.services.map(s => ({
-        ...s,
+        id: s.id,
+        name: s.name,
+        service: s.name,
+        price: s.price ?? 0,
+        rating: s.rating ?? 0,
+        reviewCount: s.reviewCount ?? 0,
+        distance: s.distance ?? 0,
+        lat: s.lat ?? 0,
+        lng: s.lng ?? 0,
         gradient: 'linear-gradient(135deg, #4CAF50, #2E7D32)',
       }));
       setLandscapers(mapped);

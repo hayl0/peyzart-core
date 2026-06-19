@@ -32,7 +32,7 @@ export default function PlaceCard({
       >
         <div className="h-[80px] relative" style={{ background: gradient }}>
           <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-bold text-dark-forest shadow-sm">
-            ★ {rating.toFixed(1)}
+            ★ {(rating ?? 0).toFixed(1)}
           </div>
         </div>
         <div className="p-3">
@@ -48,7 +48,7 @@ export default function PlaceCard({
             </span>
             <span className="text-[11px] text-[var(--theme-text-secondary)] flex items-center gap-1">
               <MapPin size={10} />
-              {distance.toFixed(1)} km
+              {(distance ?? 0).toFixed(1)} km
             </span>
           </div>
         </div>
