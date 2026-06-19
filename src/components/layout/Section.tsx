@@ -21,7 +21,7 @@ export const Section = ({ title, description, children, className = '' }: Sectio
             className="mb-12"
           >
             <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-              <span className="bg-gradient-to-r from-peyzart-cyan via-peyzart-blue to-peyzart-purple bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-bright-green via-medium-green to-peyzart-green bg-clip-text text-transparent">
                 {title}
               </span>
             </h2>

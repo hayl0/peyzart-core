@@ -11,7 +11,7 @@ interface CardProps {
 const variants = {
   glass: 'backdrop-blur-xl bg-white/10 border border-white/20 hover:border-white/40',
   gradient:
-    'bg-gradient-to-br from-peyzart-cyan/20 to-peyzart-purple/20 border border-white/20 hover:border-peyzart-cyan/50',
+    'bg-gradient-to-br from-bright-green/20 to-peyzart-green/20 border border-white/20 hover:border-bright-green/50',
   solid: 'bg-white/5 border border-white/15 hover:border-white/30',
 };
 

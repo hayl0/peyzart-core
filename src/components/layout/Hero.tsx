@@ -51,7 +51,7 @@ export const Hero = ({
           }
         }
         transition={{ duration: 20, repeat: Infinity }}
-        className="absolute top-1/4 left-1/4 w-96 h-96 bg-peyzart-cyan rounded-full blur-3xl"
+        className="absolute top-1/4 left-1/4 w-96 h-96 bg-bright-green rounded-full blur-3xl"
       />
       <motion.div
         animate={
@@ -62,7 +62,7 @@ export const Hero = ({
           }
         }
         transition={{ duration: 20, repeat: Infinity, delay: 2 }}
-        className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-peyzart-purple rounded-full blur-3xl"
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-peyzart-green rounded-full blur-3xl"
       />
 
       {/* Content */}
@@ -77,7 +77,7 @@ export const Hero = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-peyzart-cyan font-bold text-lg mb-4 uppercase tracking-widest"
+            className="text-bright-green font-bold text-lg mb-4 uppercase tracking-widest"
           >
             {subtitle}
           </motion.p>
@@ -119,7 +119,7 @@ export const Hero = ({
                   ${
                     button.variant === 'secondary'
                       ? 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
-                      : 'bg-gradient-to-r from-peyzart-cyan to-peyzart-blue text-white shadow-lg shadow-peyzart-cyan/50 hover:shadow-xl'
+                      : 'bg-gradient-to-r from-bright-green to-medium-green text-white shadow-lg shadow-bright-green/50 hover:shadow-xl'
                   }
                 `}
               >
@@ -136,8 +136,8 @@ export const Hero = ({
         transition={{ duration: 2, repeat: Infinity }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
       >
-        <div className="w-6 h-10 border-2 border-peyzart-cyan/50 rounded-full flex items-center justify-center">
-          <div className="w-1 h-2 bg-peyzart-cyan rounded-full animate-pulse" />
+        <div className="w-6 h-10 border-2 border-bright-green/50 rounded-full flex items-center justify-center">
+          <div className="w-1 h-2 bg-bright-green rounded-full animate-pulse" />
         </div>
       </motion.div>
     </section>

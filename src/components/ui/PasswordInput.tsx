@@ -41,8 +41,8 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
               w-full px-4 py-3 pl-11 pr-12 rounded-xl
               bg-white/10 border border-white/20
               text-white placeholder-white/40
-              focus:bg-white/15 focus:border-peyzart-cyan/50
-              focus:outline-none focus:ring-2 focus:ring-peyzart-cyan/20
+              focus:bg-white/15 focus:border-bright-green/50
+              focus:outline-none focus:ring-2 focus:ring-bright-green/20
               transition-all duration-300
               backdrop-blur-sm
               ${error ? 'border-red-500/50' : ''}

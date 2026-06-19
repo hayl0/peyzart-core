@@ -10,7 +10,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   updateProfile,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { auth as firebaseAuth } from '@/lib/firebase/config';
 
@@ -81,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!auth) throw new Error('Firebase not initialized');
     const result = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(result.user, { displayName: name });
+    await sendEmailVerification(result.user);
     localStorage.setItem('peyzart_user_role', role);
     setUserRole(role);
     await setSessionCookie();

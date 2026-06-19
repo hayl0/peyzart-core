@@ -8,7 +8,7 @@ interface BadgeProps {
 }
 
 const variants = {
-  default: 'bg-peyzart-cyan/20 text-peyzart-cyan border border-peyzart-cyan/50',
+  default: 'bg-bright-green/20 text-bright-green border border-bright-green/50',
   success: 'bg-green-500/20 text-green-400 border border-green-500/50',
   warning: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50',
   error: 'bg-red-500/20 text-red-400 border border-red-500/50',

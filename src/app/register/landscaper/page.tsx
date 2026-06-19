@@ -80,8 +80,13 @@ export default function LandscaperRegisterPage() {
           <div className="space-y-4">
             <h1 className="text-3xl font-black text-[#0A2E1A]">Başvurunuz Alındı!</h1>
             <p className="text-[#0A2E1A]/60 font-medium">
-              E-posta adresinize doğrulama bağlantısı gönderdik. Lütfen e-postanızı kontrol edin.
+              E-posta adresinize doğrulama bağlantısı gönderdik.
             </p>
+            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-2xl">
+              <p className="text-xs font-bold text-yellow-700">
+                📧 E-postanı kontrol et. Doğrulamadan giriş yapamazsın.
+              </p>
+            </div>
           </div>
           <Link href="/login" className="block w-full py-4 bg-[#4CAF50] text-white rounded-2xl font-black shadow-lg shadow-[#4CAF50]/20">
             Giriş Yap

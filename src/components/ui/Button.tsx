@@ -12,11 +12,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants = {
   primary:
-    'bg-gradient-to-r from-peyzart-cyan to-peyzart-blue hover:shadow-lg hover:shadow-peyzart-cyan/50 text-white',
+    'bg-gradient-to-r from-bright-green to-medium-green hover:shadow-lg hover:shadow-bright-green/30 text-white',
   secondary:
-    'bg-gradient-to-r from-peyzart-purple to-peyzart-magenta hover:shadow-lg hover:shadow-peyzart-purple/50 text-white',
+    'bg-gradient-to-r from-dark-forest to-peyzart-green hover:shadow-lg hover:shadow-dark-forest/30 text-white',
   outline:
-    'border-2 border-peyzart-cyan text-peyzart-cyan hover:bg-peyzart-cyan/10 hover:shadow-lg hover:shadow-peyzart-cyan/30',
+    'border-2 border-bright-green text-bright-green hover:bg-bright-green/10 hover:shadow-lg hover:shadow-bright-green/20',
   danger: 'bg-red-500 hover:bg-red-600 text-white hover:shadow-lg hover:shadow-red-500/50',
   success: 'bg-green-500 hover:bg-green-600 text-white hover:shadow-lg hover:shadow-green-500/50',
 };
