@@ -11,6 +11,15 @@ const publicRoutes = [
   '/marketplace',
   '/service',
   '/_not-found',
+  '/booking',
+  '/orders',
+  '/order',
+  '/favorites',
+  '/profile',
+  '/settings',
+  '/odeme',
+  '/dashboard',
+  '/landscaper',
 ]
 
 const publicPrefixes = [
