@@ -11,12 +11,15 @@ const publicRoutes = [
   '/marketplace',
   '/service',
   '/_not-found',
+  '/landscaper/dashboard',
+  '/landscaper',
 ]
 
 const publicPrefixes = [
   '/_next',
   '/api',
   '/favicon.ico',
+  '/images',
 ]
 
 export function proxy(request: NextRequest) {
