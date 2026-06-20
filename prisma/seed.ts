@@ -111,7 +111,8 @@ const MAIN_CATEGORIES = [
 ];
 
 async function main() {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+  const dbUrl = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL!;
+  const adapter = new PrismaPg({ connectionString: dbUrl });
   const prisma = new PrismaClient({ adapter });
 
   // Clean existing data
