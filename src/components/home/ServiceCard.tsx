@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Star, MapPin } from 'lucide-react';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 
 interface ServiceCardProps {
   id: string;
@@ -16,7 +17,6 @@ interface ServiceCardProps {
   featured?: boolean;
 }
 
-/* eslint-disable @next/next/no-img-element */
 export default function ServiceCard({
   id,
   name,
@@ -42,10 +42,13 @@ export default function ServiceCard({
             Öne Çıkan
           </div>
         )}
-        <div className="h-[76px] flex items-center justify-center relative" style={{ background: gradient }}>
-          {image && (
-            <img src={image} alt={name} className="w-full h-full object-cover" />
-          )}
+        <div className="h-[76px] relative">
+          <ImageWithFallback
+            src={image || ''}
+            alt={name}
+            className="w-full h-full"
+            fallback={gradient}
+          />
         </div>
 
         <div className="p-3">

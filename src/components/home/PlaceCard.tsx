@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 
 interface PlaceCardProps {
   id: string;
@@ -10,6 +11,7 @@ interface PlaceCardProps {
   price: number;
   rating: number;
   distance: number;
+  image?: string;
   gradient?: string;
 }
 
@@ -20,6 +22,7 @@ export default function PlaceCard({
   price,
   rating,
   distance,
+  image,
   gradient = 'linear-gradient(135deg, #4CAF50, #2E7D32)',
 }: PlaceCardProps) {
   return (
@@ -30,7 +33,13 @@ export default function PlaceCard({
       <div className="bg-[var(--theme-card)] rounded-[16px] border border-[var(--theme-border)] overflow-hidden transition-all duration-200 hover:shadow-lg active:scale-[0.97]"
         style={{ boxShadow: 'var(--theme-shadow)' }}
       >
-        <div className="h-[80px] relative" style={{ background: gradient }}>
+        <div className="h-[80px] relative">
+          <ImageWithFallback
+            src={image || ''}
+            alt={name}
+            className="w-full h-full rounded-t-[16px]"
+            fallback={gradient}
+          />
           <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-bold text-dark-forest shadow-sm">
             ★ {(rating ?? 0).toFixed(1)}
           </div>

@@ -3,17 +3,18 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Star, MapPin, ArrowRight } from 'lucide-react';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import AnimateOnScroll from './AnimateOnScroll';
 
 const FEATURED = [
   { id: 'f1', name: 'Yeşil Dünya Peyzaj', service: 'Peyzaj Tasarım', price: 750, rating: 5.0, reviewCount: 89, distance: 5.1,
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=250&fit=crop' },
+    image: '/images/categories/bahce-peyzaj.jpg' },
   { id: 'f2', name: 'Doğa Bahçe Sanatı', service: 'Bahçe Düzenleme', price: 950, rating: 4.9, reviewCount: 156, distance: 2.8,
-    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=250&fit=crop' },
+    image: '/images/services/cardak-pergola.jpg' },
   { id: 'f3', name: 'Zeytin Peyzaj', service: 'Sulama Sistemi', price: 1200, rating: 4.8, reviewCount: 210, distance: 3.5,
-    image: 'https://images.unsplash.com/photo-1621274790574-5f0d4c7fdfbf?w=400&h=250&fit=crop' },
+    image: '/images/services/sulama-sistemi.jpg' },
   { id: 'f4', name: 'Bahçe Sanatı', service: 'Çim Bakımı', price: 350, rating: 4.2, reviewCount: 124, distance: 2.3,
-    image: 'https://images.unsplash.com/photo-1598902108854-10e335adac99?w=400&h=250&fit=crop' },
+    image: '/images/services/yapay-cim.jpg' },
 ];
 
 export default function FeaturedSection() {
@@ -37,9 +38,11 @@ export default function FeaturedSection() {
                 <Link href={`/service/${item.id}`} className="min-w-[260px] md:min-w-0 snap-start block group">
                   <div className="bg-white rounded-[20px] border border-[var(--theme-border)] overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <div className="relative h-[140px] overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={item.image} alt={item.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      <ImageWithFallback
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full transition-transform duration-500 group-hover:scale-110"
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                       <div className="absolute top-2 left-2 bg-lime text-[11px] font-bold text-dark-forest px-2.5 py-0.5 rounded-full shadow-md">
                         Öne Çıkan
