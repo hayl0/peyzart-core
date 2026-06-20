@@ -19,7 +19,7 @@ const publicPrefixes = [
   '/favicon.ico',
 ]
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const isPublic = publicRoutes.some(r => pathname === r || pathname.startsWith(r + '/'))
