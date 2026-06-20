@@ -10,6 +10,7 @@ interface ImageWithFallbackProps {
   className?: string
   width?: number
   height?: number
+  priority?: boolean
 }
 
 export function ImageWithFallback({
@@ -19,6 +20,7 @@ export function ImageWithFallback({
   className,
   width,
   height,
+  priority,
 }: ImageWithFallbackProps) {
   const [hasError, setHasError] = useState(false)
 
@@ -38,6 +40,8 @@ export function ImageWithFallback({
       alt={alt}
       width={width}
       height={height}
+      fetchPriority={priority ? 'high' : undefined}
+      loading={priority ? undefined : 'lazy'}
       onError={() => setHasError(true)}
       className={cn('object-cover', className)}
     />

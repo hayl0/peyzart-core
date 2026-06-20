@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, MapPin, CheckCircle } from 'lucide-react';
+import { ChevronLeft, MapPin, CheckCircle, MessageCircle } from 'lucide-react';
 import { api } from '@/lib/api-client';
 
 interface TimelineStep {
@@ -129,9 +129,12 @@ export default function OrderDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <div className="nature-card p-4 flex flex-col items-center justify-center h-[200px]">
-              <h3 className="font-bold text-sm text-[var(--theme-text)] mb-2">Sohbet</h3>
-              <p className="text-xs text-[var(--theme-text-muted)] text-center">Sohbet özelliği yakında gelecek</p>
+            <div className="nature-card p-5 flex flex-col items-center justify-center min-h-[180px] bg-gradient-to-br from-bright-green/5 to-lime/5">
+              <div className="w-12 h-12 rounded-full bg-bright-green/10 flex items-center justify-center mb-3">
+                <MessageCircle size={22} className="text-bright-green/60" />
+              </div>
+              <h3 className="font-bold text-sm text-[var(--theme-text)] mb-1">Sohbet</h3>
+              <p className="text-xs text-[var(--theme-text-muted)] text-center">Sohbet özelliği çok yakında</p>
             </div>
 
             <button className="w-full py-3 border border-red-200 text-red-500 rounded-[14px] text-sm font-semibold hover:bg-red-50 transition-colors">

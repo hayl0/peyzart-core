@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { Search, SlidersHorizontal, DollarSign, Star, MapPin, X, Maximize2 } from 'lucide-react';
-import { MapboxMap } from '@/components/map';
+import dynamic from 'next/dynamic';
+
+const MapboxMap = dynamic(
+  () => import('@/components/map').then(mod => mod.MapboxMap),
+  { ssr: false }
+);
 import PlaceCard from './PlaceCard';
 import ServiceCard from './ServiceCard';
 import ServiceCardSkeleton from './ServiceCardSkeleton';

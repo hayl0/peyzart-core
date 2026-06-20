@@ -89,7 +89,7 @@ export default function CategoryTiles() {
             {categories.map((cat, i) => (
               <motion.a
                 key={cat.id}
-                href={`/kesfet?category=${cat.slug}`}
+                href={`/kesfet?kategori=${cat.slug}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}

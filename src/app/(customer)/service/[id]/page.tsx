@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Star, MapPin, ChevronLeft, Calendar } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 
 interface ServiceDetail {
   id: string;
@@ -68,8 +69,12 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         <div className="h-48 md:h-64 rounded-[24px] overflow-hidden mb-6 bg-[var(--theme-border)]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={service.image} alt="" className="w-full h-full object-cover" />
+          <ImageWithFallback
+            src={service.image}
+            alt={service.name}
+            className="w-full h-full"
+            fallback="linear-gradient(135deg, #4CAF50, #2E7D32)"
+          />
         </div>
 
         <div className="mb-6">
@@ -88,7 +93,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        <div className="nature-card p-4 md:p-5 mb-4">
+        <div className="nature-card p-4 md:p-5 mb-4 hover:shadow-lg transition-shadow duration-200">
           <h3 className="font-bold text-sm text-[var(--theme-text)] mb-2">Açıklama</h3>
           <p className="text-sm text-[var(--theme-text-secondary)] leading-relaxed">
             {service.description}
@@ -98,20 +103,24 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
         <div className="mb-6">
           <h3 className="font-bold text-sm text-[var(--theme-text)] mb-3">Galeri</h3>
           <div className="flex gap-2 overflow-x-auto pb-2">
-            {service.images.length > 0
-              ? service.images.map((img, i) => (
-                  <div key={i} className="w-24 h-24 md:w-28 md:h-28 rounded-[16px] overflow-hidden flex-shrink-0 bg-[var(--theme-border)]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </div>
-                ))
-              : Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="w-24 h-24 md:w-28 md:h-28 rounded-[16px] overflow-hidden flex-shrink-0 bg-gradient-to-br from-bright-green/20 to-emerald-400/20" />
-                ))}
+              {service.images.length > 0
+                ? service.images.map((img, i) => (
+                    <div key={i} className="w-24 h-24 md:w-28 md:h-28 rounded-[16px] overflow-hidden flex-shrink-0 bg-[var(--theme-border)]">
+                      <ImageWithFallback
+                        src={img}
+                        alt={`${service.name} görsel ${i + 1}`}
+                        className="w-full h-full"
+                        fallback="linear-gradient(135deg, #4CAF50, #2E7D32)"
+                      />
+                    </div>
+                  ))
+                : Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="w-24 h-24 md:w-28 md:h-28 rounded-[16px] overflow-hidden flex-shrink-0 bg-gradient-to-br from-bright-green/20 to-emerald-400/20" />
+                  ))}
           </div>
         </div>
 
-        <div className="nature-card p-4 md:p-5 mb-6">
+        <div className="nature-card p-4 md:p-5 mb-6 hover:shadow-lg transition-shadow duration-200">
           <div className="flex items-center gap-2 mb-3">
             <Calendar size={16} className="text-bright-green" />
             <h3 className="font-bold text-sm text-[var(--theme-text)]">Müsait Günler</h3>
@@ -137,7 +146,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
           <h3 className="font-bold text-sm text-[var(--theme-text)] mb-3">Yorumlar ({reviewTotal})</h3>
           <div className="space-y-3">
             {reviews.map((review, i) => (
-              <div key={i} className="nature-card p-4">
+              <div key={i} className="nature-card p-4 hover:shadow-lg transition-shadow duration-200">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-9 h-9 rounded-full bg-bright-green/20 flex items-center justify-center text-xs font-bold text-bright-green">{review.avatar}</div>
                   <div>
