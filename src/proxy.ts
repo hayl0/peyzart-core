@@ -13,6 +13,15 @@ const publicRoutes = [
   '/_not-found',
   '/landscaper/dashboard',
   '/landscaper',
+  '/gizlilik',
+  '/kosullar',
+  '/hakkimizda',
+  '/iletisim',
+  '/yardim',
+  '/sss',
+  '/cerezler',
+  '/blog',
+  '/kariyer',
 ]
 
 const publicPrefixes = [

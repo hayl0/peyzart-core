@@ -1,0 +1,13 @@
+{
+  "project": "peyzart-6ddfd",
+  "auth": {
+    "providers": {
+      "google": {
+        "enabled": true
+      },
+      "email": {
+        "enabled": true
+      }
+    }
+  }
+}
