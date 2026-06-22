@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -20,11 +20,14 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [justRegistered, setJustRegistered] = useState(false);
 
-  if (user) {
-    router.push('/home');
-    return null;
-  }
+  useEffect(() => {
+    if (justRegistered && user) {
+      const target = role === 'landscaper' ? '/register/landscaper' : '/verify';
+      router.push(target);
+    }
+  }, [justRegistered, user, role, router]);
 
   const passwordStrength = () => {
     let score = 0;
@@ -50,7 +53,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       await signUp(email, password, name, role);
-      router.push('/verify');
+      setJustRegistered(true);
     } catch (err) {
       const error = err as { code?: string };
       const msg =
@@ -72,7 +75,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       await signInWithGoogle(role);
-      router.push('/home');
+      setJustRegistered(true);
     } catch {
       setError('Google ile kayıt başarısız');
     } finally {

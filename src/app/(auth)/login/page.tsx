@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -18,11 +18,14 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  if (user && userRole) {
-    const target = userRole === 'landscaper' ? '/landscaper/dashboard' : '/home';
-    router.push(target);
-    return null;
-  }
+  // Only redirect after successful login, not on initial page load
+  const [justLoggedIn, setJustLoggedIn] = useState(false);
+  useEffect(() => {
+    if (justLoggedIn && user && userRole) {
+      const target = userRole === 'landscaper' ? '/landscaper/dashboard' : '/home';
+      router.push(target);
+    }
+  }, [justLoggedIn, user, userRole, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +33,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signIn(email, password, role);
-      // Router will redirect via AuthContext's onAuthStateChanged
+      setJustLoggedIn(true);
     } catch (err) {
       const error = err as { code?: string };
       const msg =

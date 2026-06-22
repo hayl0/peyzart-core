@@ -60,7 +60,7 @@ export default function NearbySection({ landscapers, state, onRetry }: NearbySec
   return (
     <section className="bg-[var(--theme-bg)]">
       <div className="relative mx-4 md:mx-6">
-        <div className="h-[180px] md:h-[220px] rounded-[16px] overflow-hidden relative border border-[var(--theme-border)]">
+        <div className="h-[300px] md:h-[400px] rounded-[16px] overflow-hidden relative border border-[var(--theme-border)]">
           {state === 'loading' && (
             <div className="absolute inset-0 bg-[var(--theme-bg)] flex items-center justify-center z-20">
               <div className="flex flex-col items-center gap-2">
