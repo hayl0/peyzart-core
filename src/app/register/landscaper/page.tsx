@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { auth } from '@/lib/firebase/config'
 
 const STEPS = [
   { id: 1, title: 'Temel Bilgiler', icon: User },
@@ -16,11 +17,20 @@ const STEPS = [
   { id: 3, title: 'Evrak ve Onay', icon: FileText },
 ]
 
-const ALL_SERVICES = ['Çim Biçme', 'Budama', 'Tasarım', 'Sulama', 'İlaçlama', 'Ağaç Dikimi']
+const CATEGORIES: { emoji: string; name: string; description: string }[] = [
+  { emoji: '🌿', name: 'Bahçe & Peyzaj', description: 'Tasarım, düzenleme, bakım' },
+  { emoji: '✨', name: 'Temizlik', description: 'Ev, ofis, halı yıkama' },
+  { emoji: '🎨', name: 'Boya & Badana', description: 'İç/dış cephe, alçı, sıva' },
+  { emoji: '🔧', name: 'Tadilat & Onarım', description: 'Mutfak, banyo, genel tadilat' },
+  { emoji: '⚡', name: 'Elektrik', description: 'Tesisat, arıza, akıllı ev' },
+  { emoji: '🔩', name: 'Tesisat', description: 'Su, doğalgaz, kombi bakımı' },
+  { emoji: '🪑', name: 'Mobilya & Dekorasyon', description: 'Montaj, iç dekorasyon, perde' },
+  { emoji: '🏠', name: 'Dış Cephe', description: 'Çatı, yalıtım, cephe kaplama' },
+]
 
 export default function LandscaperRegisterPage() {
   const router = useRouter()
-  const { signUp } = useAuth()
+  const { signUp, user } = useAuth()
 
   const [step, setStep] = useState(1)
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -46,14 +56,40 @@ export default function LandscaperRegisterPage() {
 
   const handleSubmit = async () => {
     setError('')
-    if (!name.trim() || !email.includes('@') || password.length < 8) {
+    if (!name.trim() || !email.includes('@')) {
       setError('Lütfen tüm zorunlu alanları doldurun')
       return
     }
 
     setIsLoading(true)
     try {
-      await signUp(email, password, name, 'landscaper')
+      if (!user) {
+        if (password.length < 8) {
+          setError('Şifre en az 8 karakter olmalı')
+          setIsLoading(false)
+          return
+        }
+        await signUp(email, password, name, 'landscaper')
+      }
+
+      const idToken = await auth?.currentUser?.getIdToken()
+      if (idToken && selectedServices.length > 0) {
+        await fetch('/api/landscaper/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            phone,
+            bio,
+            selectedCategories: selectedServices,
+          }),
+        })
+      }
+
       setIsSubmitted(true)
       setTimeout(() => router.push('/landscaper/dashboard'), 3000)
     } catch (err) {
@@ -208,25 +244,37 @@ export default function LandscaperRegisterPage() {
               </div>
 
               <div className="space-y-6">
-                 <div className="grid grid-cols-2 gap-4">
-                    {ALL_SERVICES.map(s => (
-                    <button key={s} type="button" onClick={() => toggleService(s)}
-                      className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
-                        selectedServices.includes(s)
-                          ? 'bg-[#4CAF50]/10 border-[#4CAF50]/40'
-                          : 'bg-[#eef1e3] border-[#d0d8bf] hover:border-[#4CAF50]/40'
-                      }`}>
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                        selectedServices.includes(s)
-                          ? 'bg-[#4CAF50] border-[#4CAF50]'
-                          : 'border-[#4CAF50]/20'
-                      }`}>
-                        {selectedServices.includes(s) && <CheckCircle2 size={12} className="text-white" />}
-                      </div>
-                      <span className="text-sm font-bold text-[#0A2E1A]/80">{s}</span>
-                    </button>
-                    ))}
-                 </div>
+                 <div className="grid grid-cols-2 gap-3">
+                    {CATEGORIES.map(cat => {
+                      const isSelected = selectedServices.includes(cat.name);
+                      return (
+                        <button key={cat.name} type="button" onClick={() => toggleService(cat.name)}
+                          className={`relative text-left p-4 rounded-2xl border-2 transition-all duration-200 ${
+                            isSelected
+                              ? 'bg-[#4CAF50]/10 border-[#4CAF50]/40 shadow-[0_0_0_2px_rgba(76,175,80,0.1)]'
+                              : 'bg-[#eef1e3] border-[#d0d8bf] hover:border-[#4CAF50]/40 hover:shadow-sm'
+                          }`}
+                        >
+                          {isSelected && (
+                            <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-[#4CAF50] flex items-center justify-center">
+                              <CheckCircle2 size={12} className="text-white" />
+                            </div>
+                          )}
+                          <div className="flex items-start gap-3">
+                            <span className="text-xl mt-0.5">{cat.emoji}</span>
+                            <div className="min-w-0">
+                              <div className={`text-sm font-bold transition-colors ${isSelected ? 'text-[#4CAF50]' : 'text-[#0A2E1A]/80'}`}>
+                                {cat.name}
+                              </div>
+                              <div className="text-[10px] text-[#0A2E1A]/40 mt-0.5 leading-tight">
+                                {cat.description}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                  <div className="space-y-2 pt-4">
                   <label className="text-xs font-black text-[#0A2E1A]/70 uppercase tracking-widest ml-1 block">Kısa Biyografi</label>
                   <textarea value={bio} onChange={e => setBio(e.target.value)}

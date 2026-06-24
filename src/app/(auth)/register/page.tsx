@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { Mail, Lock, User, Phone, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import SplitAuthLayout from '@/components/auth/SplitAuthLayout';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -86,16 +86,12 @@ export default function RegisterPage() {
   const score = passwordStrength();
 
   return (
-    <div className="min-h-screen bg-nature-bg flex items-center justify-center p-4 md:p-10">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-[420px] bg-white rounded-[24px] border border-nature-border shadow-[0_8px_32px_rgba(0,0,0,0.06)] p-8 sm:p-10"
-      >
-        {/* Logo */}
+    <SplitAuthLayout>
+      <div className="bg-white rounded-[24px] border border-nature-border shadow-[0_8px_32px_rgba(0,0,0,0.06)] p-8 sm:p-10">
+        {/* Header */}
         <div className="text-center mb-6">
-          <div className="logo-gradient text-[36px] md:text-[46px]">Peyzart</div>
-          <p className="text-[#888] text-sm mt-2">Hesap oluştur ve başla ✨</p>
+          <div className="w-[60px] h-[3px] bg-gradient-to-r from-bright-green to-lime rounded-full mx-auto" />
+          <p className="text-[#888] text-sm mt-4">Hesap oluştur ve başla ✨</p>
         </div>
 
         {/* Role Switcher */}
@@ -118,7 +114,7 @@ export default function RegisterPage() {
                 : 'text-[#999] hover:text-[#666]'
             }`}
           >
-            Peyzajcı
+            Hizmet Veren
           </button>
         </div>
 
@@ -284,10 +280,22 @@ export default function RegisterPage() {
           className="w-full py-3.5 border border-nature-input-border rounded-[14px] text-sm font-semibold text-[#333] hover:bg-[#f8f9fa] hover:border-[#dadce0] transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-sm"
         >
           <svg viewBox="0 0 48 48" className="w-5 h-5">
-            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-            <path fill="#FBBC05" d="M10.54 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 0 0 0 24c0 3.77.87 7.35 2.56 10.56l7.98-5.97z"/>
-            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.97C6.51 42.62 14.62 48 24 48z"/>
+            <path
+              fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M10.54 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 0 0 0 24c0 3.77.87 7.35 2.56 10.56l7.98-5.97z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.97C6.51 42.62 14.62 48 24 48z"
+            />
           </svg>
           Google ile Kayıt Ol
         </button>
@@ -295,11 +303,14 @@ export default function RegisterPage() {
         {/* Login Link */}
         <p className="text-center mt-6 text-sm text-[#888]">
           Zaten hesabın var mı?{' '}
-          <Link href="/login" className="font-extrabold bg-gradient-to-r from-bright-green to-lime bg-clip-text text-transparent">
+          <Link
+            href="/login"
+            className="font-extrabold bg-gradient-to-r from-bright-green to-lime bg-clip-text text-transparent"
+          >
             Giriş Yap
           </Link>
         </p>
-      </motion.div>
-    </div>
+      </div>
+    </SplitAuthLayout>
   );
 }
